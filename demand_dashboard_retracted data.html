@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Demand Dashboard (Retracted Data) | 2025 - 2033</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Arial', 'Helvetica Neue', sans-serif; background: #f4f6fa; color: #1a2236; min-height: 100vh; }
+.header { background: #000; color: #fff; padding: 22px 40px 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
+.header h1 { font-size: 24px; font-weight: 600; letter-spacing: 0.2px; margin-bottom: 3px; }
+.header .sub { font-size: 12px; color: #b8c8e0; font-weight: 400; }
+.sticky-top { position: sticky; top: 0; z-index: 100; background: #f4f6fa; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.filter-bar { background: #fff; border-bottom: 1px solid #dde3ec; padding: 14px 40px; display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; justify-content: center; box-shadow: 0 1px 3px rgba(20,30,60,0.04); }
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
+.filter-group label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: #6a778f; font-weight: 600; }
+.filter-group select { font-family: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid #c6cfdc; background: #fff; border-radius: 6px; min-width: 180px; max-width: 240px; color: #1a2236; cursor: pointer; }
+.filter-group select:focus { outline: 2px solid #0033A0; outline-offset: -1px; }
+.filter-group select:disabled { background: #f4f6fa; color: #8892a8; cursor: not-allowed; }
+.ms-wrap { position: relative; }
+.ms-toggle { font-family: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid #c6cfdc; background: #fff; border-radius: 6px; min-width: 180px; max-width: 240px; color: #1a2236; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ms-toggle:hover { border-color: #0098DB; }
+.ms-toggle.has-sel { border-color: #0033A0; }
+.ms-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ms-caret { color: #6a778f; font-size: 10px; flex-shrink: 0; }
+.ms-panel { position: absolute; top: calc(100% + 4px); left: 0; z-index: 50; width: 260px; background: #fff; border: 1px solid #c6cfdc; border-radius: 8px; box-shadow: 0 8px 24px rgba(20,30,60,0.16); padding: 8px; }
+.ms-search { width: 100%; box-sizing: border-box; font-family: inherit; font-size: 13px; padding: 6px 9px; border: 1px solid #c6cfdc; border-radius: 6px; color: #1a2236; margin-bottom: 6px; }
+.ms-search:focus { outline: 2px solid #0033A0; outline-offset: -1px; }
+.ms-actions { display: flex; align-items: center; justify-content: space-between; padding: 0 2px 6px; }
+.ms-actions button { font-family: inherit; font-size: 11px; font-weight: 600; color: #0033A0; background: none; border: none; cursor: pointer; padding: 2px 4px; }
+.ms-actions button:hover { text-decoration: underline; }
+.ms-count { font-size: 11px; color: #6a778f; }
+.ms-list { max-height: 280px; overflow-y: auto; }
+.ms-item { display: flex; align-items: center; gap: 8px; padding: 5px 6px; font-size: 13px; color: #1a2236; border-radius: 5px; cursor: pointer; }
+.ms-item:hover { background: #eef4fb; }
+.ms-item input { margin: 0; cursor: pointer; flex-shrink: 0; }
+.ms-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ms-empty { padding: 10px 6px; font-size: 12px; color: #8892a8; text-align: center; }
+.filter-reset { align-self: flex-end; padding: 7px 14px; font-size: 12px; font-weight: 600; color: #5a6478; background: #eef2f8; border: none; border-radius: 6px; cursor: pointer; }
+.filter-reset:hover { background: #dde6f2; color: #0033A0; }
+.year-toggle { display: inline-flex; background: #eef2f8; border-radius: 6px; padding: 3px; height: 33px; }
+.year-toggle button { padding: 0 14px; border: none; background: transparent; border-radius: 4px; font-family: inherit; font-size: 12px; font-weight: 600; color: #5a6478; cursor: pointer; }
+.year-toggle button.active { background: #0033A0; color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+.year-toggle button:hover:not(.active) { color: #0033A0; }
+.category-bar { background: #f8fafd; border-bottom: 1px solid #dde3ec; padding: 10px 40px; display: flex; gap: 14px; align-items: center; justify-content: center; }
+.category-bar .category-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #6a778f; font-weight: 700; }
+.tabs { display: flex; background: #fff; border-bottom: 1px solid #dde3ec; padding: 0 40px; }
+.tab { padding: 14px 26px; cursor: pointer; font-size: 14px; font-family: 'Arial Black', 'Arial', sans-serif; font-weight: 900; color: #5a6478; border-bottom: 3px solid transparent; transition: all 0.2s; }
+.tab:hover { color: #0033A0; }
+.tab.active { color: #001F66; border-bottom: 3px solid #FFB81C; background: #f8fafd; }
+.subtabs { display: flex; gap: 4px; background: #f8fafd; border-bottom: 1px solid #dde3ec; padding: 8px 40px 0; }
+.subtabs[hidden] { display: none; }
+.subtab { padding: 8px 18px; cursor: pointer; font-size: 13px; font-family: 'Arial Black', 'Arial', sans-serif; font-weight: 900; color: #6a778f; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: 3px solid transparent; transition: all 0.15s; }
+.subtab:hover { color: #0033A0; background: #eef2f8; }
+.subtab.active { color: #001F66; background: #fff; border-color: #dde3ec; border-bottom: 3px solid #FFB81C; }
+.container { padding: 22px 40px 60px; max-width: 1700px; margin: 0 auto; }
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.kpi { background: #fff; border-radius: 10px; padding: 18px 22px; box-shadow: 0 1px 4px rgba(20,30,60,0.06); border-left: 4px solid #0033A0; }
+.kpi .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #6a778f; font-weight: 600; margin-bottom: 7px; }
+.kpi .value { font-size: 24px; font-weight: 700; color: #001F66; line-height: 1.1; }
+.kpi .delta { font-size: 12px; margin-top: 5px; font-weight: 500; }
+.kpi .delta.up { color: #1f8a4e; }
+.kpi .delta.down { color: #c0392b; }
+.kpi.accent-amber { border-left-color: #FFB81C; }
+.kpi.accent-green { border-left-color: #1f8a4e; }
+.kpi.accent-red { border-left-color: #c0392b; }
+.card { background: #fff; border-radius: 10px; padding: 22px 26px; box-shadow: 0 1px 4px rgba(20,30,60,0.06); margin-bottom: 22px; }
+.card h3 { font-size: 14px; font-weight: 600; color: #001F66; margin-bottom: 4px; }
+.card .sub { font-size: 11px; color: #6a778f; margin-bottom: 14px; }
+.chart-wrap { position: relative; height: 520px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #eef1f6; }
+th:first-child, td:first-child { text-align: left; font-weight: 500; color: #1a2236; }
+th { background: #f8fafd; color: #5a6478; font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.6px; }
+tr:hover { background: #fafbfd; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-bottom: 14px; }
+.btn-group { display: inline-flex; background: #eef2f8; border-radius: 8px; padding: 3px; }
+.btn { padding: 7px 14px; cursor: pointer; font-size: 12px; font-weight: 600; color: #5a6478; border-radius: 6px; border: none; background: transparent; transition: all 0.15s; }
+.btn:hover { color: #0033A0; }
+.btn.active { background: #0033A0; color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+.breadcrumb { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #5a6478; margin-left: 8px; }
+.breadcrumb .crumb { cursor: pointer; padding: 5px 10px; border-radius: 6px; font-weight: 500; }
+.breadcrumb .crumb:hover { background: #eef2f8; color: #0033A0; }
+.breadcrumb .crumb.current { color: #001F66; font-weight: 600; cursor: default; }
+.breadcrumb .crumb.current:hover { background: transparent; }
+.breadcrumb .sep { color: #b8c0d0; }
+.scenario-key { display: inline-flex; align-items: center; gap: 14px; margin-left: auto; font-size: 11px; color: #5a6478; }
+.scenario-key .swatch { display: inline-flex; align-items: center; gap: 6px; }
+.scenario-key .box { width: 14px; height: 14px; border-radius: 2px; border: 1px solid #7BA0D4; }
+.scenario-key .box.target { background: #0033A0; border-color: #0033A0; }
+.scenario-key .box.outlook { background: repeating-linear-gradient(45deg, #0033A0, #0033A0 3px, #ffffff 3px, #ffffff 6px); }
+.empty-note { padding: 60px 20px; text-align: center; color: #8892a8; font-size: 13px; }
+.empty-note strong { display: block; color: #1a2236; margin-bottom: 6px; font-size: 14px; }
+.hint { font-size: 11px; color: #6a778f; font-style: italic; }
+.footer { text-align: center; padding: 16px; color: #8892a8; font-size: 11px; }
+.delta-pos { color: #1f8a4e; font-weight: 600; }
+.delta-neg { color: #c0392b; font-weight: 600; }
+.delta-zero { color: #6a778f; }
+.tree-table { font-size: 12px; table-layout: fixed; width: 100%; border-collapse: collapse; }
+.tree-table th { background: #f8fafd; color: #5a6478; font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.6px; padding: 10px 10px; border-bottom: 2px solid #dde3ec; text-align: right; }
+.tree-table th:first-child { text-align: left; }
+.tree-table td { padding: 6px 10px; border-bottom: 1px solid #eef1f6; text-align: right; font-variant-numeric: tabular-nums; }
+.tree-table .name-cell { width: 180px; min-width: 180px; word-break: break-word; white-space: normal; vertical-align: top; padding-top: 9px; cursor: pointer; text-align: left; }
+.tree-row.level-0 .name-cell { background: #f5f8fc; font-weight: 600; }
+.tree-row.level-1 .name-cell { padding-left: 18px; }
+.tree-row.level-2 .name-cell { padding-left: 30px; color: #4a5568; }
+.tree-row.level-3 .name-cell { padding-left: 42px; color: #5a6478; font-size: 11px; }
+.tree-row.level-4 .name-cell { padding-left: 54px; color: #6a778f; font-size: 11px; }
+.tree-toggle { display: inline-block; width: 12px; text-align: center; color: #6a778f; font-size: 10px; margin-right: 4px; user-select: none; }
+.tree-toggle.placeholder { color: transparent; }
+.tree-table .scn-cell { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #5a6478; font-weight: 600; width: 100px; min-width: 100px; white-space: nowrap; text-align: left; padding-left: 14px; }
+.tree-row.tr-target td { border-bottom: 0; padding-top: 6px; padding-bottom: 2px; }
+.tree-row.tr-outlook td { border-bottom: 0; padding-top: 2px; padding-bottom: 2px; color: #5a6478; }
+.tree-row.tr-delta { background: #fafbfd; }
+.tree-row.tr-delta td { border-bottom: 1px solid #dde3ec; padding-top: 2px; padding-bottom: 6px; font-weight: 600; }
+.tree-row.tr-delta .scn-cell { color: #1a2236; }
+.table-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+.tbl-btn { padding: 5px 10px; font-size: 11px; font-weight: 600; color: #5a6478; background: #eef2f8; border: none; border-radius: 5px; cursor: pointer; }
+.tbl-btn:hover { background: #dde6f2; color: #0033A0; }
+.tree-table td.yoy { font-weight: 600; }
+.tree-table td.yoy.pos { color: #1f8a4e; }
+.tree-table td.yoy.neg { color: #c0392b; }
+.tree-table th.yoy-col { background: #eef2f8; }
+.tree-table td.yoy { background: #fafbfd; }
+.tree-row.ol-bucket .name-cell { font-style: italic; color: #6a778f; background: #f4f6fa; }
+.tree-row.ol-bucket td { color: #6a778f; }
+.ol-scroll { max-height: 72vh; overflow: auto; }
+.ol-table { font-size: 11px; width: 100%; table-layout: fixed; }
+.ol-table thead th { position: sticky; top: 0; z-index: 3; background: #e9ecef; color: #1f2733; font-weight: 600; text-transform: none; font-size: 11px; letter-spacing: 0; padding: 5px 6px; border-bottom: none; box-shadow: inset 0 -1px 0 #d3d8df; text-align: right; white-space: nowrap; }
+.ol-table thead tr.grp-head-row th { height: 24px; padding: 0 6px; text-align: center; box-shadow: inset 0 -1px 0 #d3d8df; }
+.ol-table thead tr.grp-head-row th.grp-vol { background: #e2e8f1; }
+.ol-table thead tr.grp-head-row th.grp-rev { background: #e8eee4; }
+.ol-table thead tr.grp-head-row th.grp-asp { background: #f1e9e2; }
+.ol-table thead tr.col-head-row th { top: 24px; }
+.ol-table thead th.name-head { z-index: 4; text-align: left; width: 200px; }
+.ol-table tbody td { padding: 4px 6px; border-bottom: 1px solid #f0f2f5; color: #2a3340; text-align: right; white-space: nowrap; }
+.ol-table .name-cell { padding: 4px 6px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ol-table .grp-sep { border-left: 2px solid #c3cad3; }
+.ol-table thead th.yoy-col { background: #e9ecef; }
+/* Parent / child distinction via progressive shading + left accent on the name cell. */
+.ol-table .tree-row.level-0 .name-cell { background: #dfe6f1; font-weight: 700; color: #14213d; border-left: 3px solid #0033A0; }
+.ol-table .tree-row.level-1 .name-cell { background: #eaf0f8; font-weight: 600; color: #1f2d4d; border-left: 3px solid #0098DB; }
+.ol-table .tree-row.level-2 .name-cell { background: #f3f6fb; font-weight: 500; color: #2a3340; border-left: 3px solid #9db4d4; }
+.ol-table .tree-row.level-3 .name-cell { background: #ffffff; font-weight: 400; color: #2a3340; border-left: 3px solid #e0e6ef; }
+.ol-table .tree-row.level-0 td { background: #f6f9fd; }
+.ol-table .tree-row.level-1 td { background: #fbfcfe; }
+.ol-table tr.ol-grand td { border-top: 2px solid #1f2733; border-bottom: none; font-weight: 700; color: #1a2236; padding-top: 7px; padding-bottom: 7px; background: #fff; }
+.ol-table tr.ol-grand .name-cell { font-weight: 700; background: #fff; border-left: 3px solid #1f2733; }
+
+/* --- Demand Anomaly tab --- */
+.anom-controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; margin-bottom: 14px; }
+.anom-thresh { display: flex; flex-direction: column; gap: 3px; }
+.anom-thresh label { font-size: 10px; font-weight: 600; color: #6a778f; text-transform: uppercase; letter-spacing: .03em; }
+.anom-thresh input { width: 72px; padding: 5px 7px; font-size: 12px; border: 1px solid #cfd6e0; border-radius: 5px; color: #1f2733; }
+.anom-thresh input:focus { outline: none; border-color: #0098DB; }
+.anom-thresh.fixed label { color: #8a93a6; }
+.anom-thresh .anom-fixed { display: inline-block; padding: 5px 9px; font-size: 12px; font-weight: 600; color: #44506a; background: #eef2f8; border: 1px solid #e2e7ee; border-radius: 5px; }
+.anom-filters { display: flex; gap: 6px; margin-left: auto; align-items: center; }
+.anom-pill { padding: 5px 12px; font-size: 11px; font-weight: 600; color: #5a6478; background: #eef2f8; border: 1px solid transparent; border-radius: 14px; cursor: pointer; white-space: nowrap; }
+.anom-pill:hover { background: #dde6f2; color: #0033A0; }
+.anom-pill.active { background: #0033A0; color: #fff; }
+.anom-pill .pill-count { opacity: .75; margin-left: 5px; font-weight: 700; }
+.anom-summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.anom-stat { flex: 1 1 140px; background: #f6f9fd; border: 1px solid #e3eaf3; border-radius: 8px; padding: 10px 14px; }
+.anom-stat .s-num { font-size: 22px; font-weight: 700; color: #001F66; line-height: 1.1; }
+.anom-stat .s-lbl { font-size: 11px; color: #6a778f; font-weight: 600; margin-top: 2px; }
+.anom-stat.s-open .s-num { color: #c0392b; }
+.anom-stat.s-flag .s-num { color: #b8860b; }
+.anom-stat.s-acc .s-num { color: #1f8a4e; }
+
+.anom-table { font-size: 12px; width: 100%; border-collapse: collapse; }
+.anom-table thead th { position: sticky; top: 0; z-index: 3; background: #e9ecef; color: #1f2733; font-weight: 600; text-transform: none; letter-spacing: 0; padding: 11px 14px; text-align: center; white-space: nowrap; box-shadow: inset 0 -1px 0 #d3d8df; }
+.anom-table thead th.num { text-align: center; }
+.anom-table tbody td { padding: 10px 14px; border-bottom: 1px solid #f0f2f5; color: #2a3340; vertical-align: middle; text-align: center; }
+.anom-table tbody td.num { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.anom-table tbody tr.a-row { cursor: pointer; }
+.anom-table tbody tr.a-row.a-reviewed { opacity: 0.45; }
+.anom-table tbody tr.a-row.a-reviewed:hover { opacity: 1; }
+.anom-table tbody tr:hover { background: #eef4fb; }
+.anom-table .a-seg .seg-name { font-weight: 600; color: #14213d; }
+.anom-table .a-seg .seg-name::after { content: ' \2197'; color: #0098DB; font-weight: 700; opacity: 0; transition: opacity .12s; }
+.anom-table tbody tr.a-row:hover .a-seg .seg-name::after { opacity: 1; }
+.ol-table tr.ol-flash > td { animation: olFlash 2.4s ease-out; }
+@keyframes olFlash { 0%,40% { background: #FFB81C; } 100% { background: transparent; } }
+.ol-table tr.ol-pinned > td { background: #fff3cf; }
+.ol-table tr.ol-pinned > td:first-child { box-shadow: inset 3px 0 0 #FFB81C; }
+.ol-table tr.ol-pinned:hover > td { background: #ffeeb3; }
+.anom-table .a-seg .seg-crumb { font-size: 10px; color: #8a96ab; margin-top: 2px; }
+.anom-table .a-metric { font-weight: 600; }
+.anom-table .a-chg { font-weight: 700; }
+.anom-table .a-chg.pos { color: #1f8a4e; }
+.anom-table .a-chg.neg { color: #c0392b; }
+.anom-table tr.sev-high td.a-sevcell { border-left: 3px solid #c0392b; }
+.anom-table tr.sev-med td.a-sevcell { border-left: 3px solid #e08e0b; }
+.anom-table tr.sev-low td.a-sevcell { border-left: 3px solid #c3cad3; }
+.anom-table thead th.a-sevhead { width: 26px; padding-left: 3px; padding-right: 0; }
+.anom-table tbody td.a-sevcell.a-indent { width: 26px; padding-left: 23px; }
+.anom-back-btn { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); z-index: 60; display: none; align-items: center; gap: 6px; background: #0033A0; color: #fff; border: none; border-radius: 24px; padding: 12px 22px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 6px 18px rgba(0,51,160,0.35); opacity: 0; transition: opacity .2s ease, transform .2s ease, background .15s ease; }
+.anom-back-btn.show { display: inline-flex; opacity: 1; transform: translateX(-50%) translateY(0); }
+.anom-back-btn:hover { background: #0098DB; box-shadow: 0 8px 22px rgba(0,152,219,0.42); }
+.anom-table tbody tr.a-group td { background: #eef2f8; border-bottom: 1px solid #d9e0ea; border-top: 2px solid #cdd6e3; padding: 9px 14px; text-align: left; }
+.anom-table tbody tr.a-group:first-child td { border-top: none; }
+.anom-table tr.a-group .grp-cust { font-weight: 700; color: #0033A0; font-size: 12.5px; }
+.anom-table tr.a-group .grp-crumb { color: #6a778f; font-weight: 500; font-size: 11px; }
+.anom-table tr.a-group .grp-count { color: #8a96ab; font-weight: 600; font-size: 11px; margin-left: 6px; }
+.anom-table tr.a-row td.a-indent { padding-left: 26px; color: #6a778f; font-size: 11px; }
+.atag { display: inline-block; padding: 2px 8px; font-size: 10px; font-weight: 700; border-radius: 4px; white-space: nowrap; }
+.atag.t-rapid { background: #fdecea; color: #c0392b; }
+.atag.t-asp { background: #fff4e0; color: #9a6a00; }
+.abadge { display: inline-block; padding: 2px 9px; font-size: 10px; font-weight: 700; border-radius: 10px; text-transform: uppercase; letter-spacing: .03em; }
+.abadge.b-open { background: #f0e3e3; color: #a23b2e; }
+.abadge.b-flagged { background: #fdf0d6; color: #8a6400; }
+.abadge.b-accepted { background: #e1f1e7; color: #1f7a45; }
+.abadge.b-conflict { background: #efe3f4; color: #7a3aa0; }
+.a-who { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 3px; }
+.a-who .who { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 9px; }
+.a-who .who.w-flagged { background: #fdf0d6; color: #8a6400; }
+.a-who .who.w-accepted { background: #e1f1e7; color: #1f7a45; }
+.a-who .who .who-dot { font-size: 9px; line-height: 1; }
+.aact { display: inline-flex; gap: 6px; }
+.abtn { padding: 4px 10px; font-size: 11px; font-weight: 600; border: 1px solid #cfd6e0; border-radius: 5px; cursor: pointer; background: #fff; color: #5a6478; white-space: nowrap; }
+.abtn:hover { border-color: #0098DB; color: #0033A0; }
+.abtn.act-flag.on { background: #b8860b; border-color: #b8860b; color: #fff; }
+.abtn.act-accept.on { background: #1f8a4e; border-color: #1f8a4e; color: #fff; }
+.abtn-danger { color: #b4232a; border-color: #e3b8bb; }
+.abtn-danger:hover { background: #fbeaeb; border-color: #b4232a; color: #b4232a; }
+.anom-note { width: 100%; min-width: 150px; box-sizing: border-box; font-family: inherit; font-size: 12px; line-height: 1.35; padding: 6px 8px; border: 1px solid #d3d8df; border-radius: 5px; color: #2a3340; background: #fff; resize: vertical; min-height: 32px; }
+.anom-note::placeholder { color: #aab2c0; }
+.anom-note:focus { outline: 2px solid #0033A0; outline-offset: -1px; border-color: #0033A0; }
+.anom-note.has-note { border-color: #0098DB; background: #f6fbfe; }
+.a-othernote { font-size: 11px; line-height: 1.4; color: #44506a; background: #f3f6fb; border-left: 3px solid #0098DB; border-radius: 3px; padding: 4px 7px; margin-bottom: 4px; }
+.a-othernote .on-who { font-weight: 700; color: #001F66; }
+.anom-stat.s-conflict .s-num { color: #7a3aa0; }
+.anom-reviewer { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; align-self: center; color: #1b2a4e; margin-right: 8px; white-space: nowrap; background: #eaf0ff; border: 1px solid #c3d2f5; border-radius: 999px; padding: 4px 11px; }
+.anom-reviewer .rv-ico { font-size: 13px; line-height: 1; }
+.anom-reviewer b { color: #001F66; font-weight: 700; }
+.anom-reviewer button { font: inherit; font-size: 11px; color: #0033A0; background: none; border: none; padding: 0 0 0 6px; cursor: pointer; text-decoration: underline; }
+.anom-reviewer.unset { background: #fff4e0; border-color: #f0c674; color: #8a5a00; font-weight: 600; }
+.anom-reviewer.unset button { color: #8a5a00; font-weight: 600; }
+.anom-empty { padding: 40px; text-align: center; color: #6a778f; font-size: 13px; }
+
+@media (max-width: 1100px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="sticky-top">
+  <div class="header">
+    <h1>Demand Dashboard</h1>
+    <div class="sub">Product Line View vs PL-Sales Aligned View  |  2025 - 2033  |  Drill-down by End Market, Product Line, or Region</div>
+  </div>
+  <div class="filter-bar" id="filter-bar">
+    <div class="filter-group" style="display:none">
+      <label>End Market</label>
+      <select id="filter-em"></select>
+    </div>
+    <div class="filter-group">
+      <label>Product Line</label>
+      <div class="ms-wrap" id="ms-bu"></div>
+    </div>
+    <div class="filter-group">
+      <label>Product Family</label>
+      <div class="ms-wrap" id="ms-pf"></div>
+    </div>
+    <div class="filter-group">
+      <label>Reporting Tech Node</label>
+      <div class="ms-wrap" id="ms-tn"></div>
+    </div>
+    <div class="filter-group">
+      <label>Customer</label>
+      <div class="ms-wrap" id="ms-cust"></div>
+    </div>
+    <div class="filter-group">
+      <label>Region</label>
+      <div class="ms-wrap" id="ms-reg"></div>
+    </div>
+    <div class="filter-group">
+      <label>Year Range</label>
+      <div class="year-toggle" id="year-toggle">
+        <button data-range="all" type="button">2025 - 2033</button>
+        <button data-range="short" class="active" type="button">2025 - 2030</button>
+      </div>
+    </div>
+    <button class="filter-reset" id="filter-reset">Reset filters</button>
+  </div>
+  <div class="category-bar">
+    <span class="category-label">Stack by:</span>
+    <div class="btn-group category-global" id="category-global">
+      <button class="btn" data-cat="EndMarket" style="display:none">End Market</button>
+      <button class="btn active" data-cat="Product">Product Line</button>
+      <button class="btn" data-cat="Region">Region</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab top-tab active" data-group="align">PL - Sales Alignment</div>
+    <div class="tab top-tab" data-group="anomaly">Anomaly Details</div>
+  </div>
+  <div class="subtabs" data-group="align">
+    <div class="subtab active" data-tab="Volume">Volume</div>
+    <div class="subtab" data-tab="Revenue">Revenue</div>
+  </div>
+  <div class="subtabs" data-group="anomaly" hidden>
+    <div class="subtab active" data-tab="Anomaly">Demand Anomaly</div>
+    <div class="subtab" data-tab="Outlook">Outlook Detail</div>
+  </div>
+</div>
+<div class="container">
+  <div class="tab-panel active" id="panel-Volume"></div>
+  <div class="tab-panel" id="panel-Revenue"></div>
+  <div class="tab-panel" id="panel-Outlook"></div>
+  <div class="tab-panel" id="panel-Anomaly"></div>
+</div>
+<div class="footer">Generated for executive review  |  Values in kwfr (Volume) and $m (Revenue)  |  Delta = PL-Sales Aligned View - Product Line View</div>
+
+<script>
+const DATA = {"lookups":{"bu":["Feature Rich CMOS"],"pf":["40/45 CMOS"],"tn":["40 ISP"],"cust":["ABC"],"reg":["APAC"],"em":["Unassigned"],"bg":["Unassigned"]},"dim_keys":["bu","pf","tn","cust","reg","em","bg"],"rows":[[0,0,0,0,0,0,0,50.0,100.0,200.0,300.0,300.0,300.0,300.0,300.0,300.0,12.5,25.0,50.0,75.0,75.0,75.0,75.0,75.0,75.0,250.0,250.0,300.0,300.0,300.0,300.0,300.0,300.0,300.0,62.5,62.5,75.0,75.0,75.0,75.0,75.0,75.0,75.0]],"years":[2025,2026,2027,2028,2029,2030,2031,2032,2033]};
+const YEARS = DATA.years;
+const LK = DATA.lookups;
+// Year-range toggle state. activeYearIdx holds the row-array indices the user wants to display.
+// Default: all 9 years. Short range: first 6 (2025 - 2030).
+let activeYearIdx = [0,1,2,3,4,5];
+const YEAR_LABEL = y => y === 2025 ? '2025 Act.' : (y === 2026 || y === 2027 ? y + ' Apr RPM' : String(y));
+const ACTIVE = () => activeYearIdx.map(i => YEAR_LABEL(YEARS[i])); // labels currently shown
+// Chart palette: leads with GF Primary Blue, GF Accent Blue, GF Accent Yellow,
+// then supporting colors chosen for distinguishability on stacked bars.
+const palette = ['#0033A0','#0098DB','#FFB81C','#1f8a4e','#c0392b','#7b4ea3','#0d8aa6','#e07b39','#3aa6b9','#a05195','#665191','#f95d6a','#001F66','#8da650','#5a6478'];
+// Stable, name-keyed color map so the same category gets the same color across
+// both the Volume and Revenue charts (regardless of per-chart sort order).
+const _colorMap = (() => {
+  const m = new Map();
+  let i = 0;
+  ['bu','tn','cust','reg','em','bg','pf'].forEach(k => {
+    (LK[k] || []).forEach(name => {
+      if (name != null && !m.has(name)) { m.set(name, palette[i % palette.length]); i++; }
+    });
+  });
+  return m;
+})();
+// Distinct gray shades for the long-tail buckets used by the customer view.
+const BUCKET_COLORS = { 'Next 10 (11-20)': '#94a3b8', 'Next 10 (21-30)': '#cbd5e1', 'Others': '#dde3ec' };
+const colorFor = name => BUCKET_COLORS[name] || _colorMap.get(name) || palette[0];
+// Stable, name-keyed order so the same category sits in the same stack position
+// across both the Volume and Revenue charts.
+const _orderMap = (() => {
+  const m = new Map();
+  let i = 0;
+  for (const name of _colorMap.keys()) m.set(name, i++);
+  return m;
+})();
+const orderFor = name => _orderMap.has(name) ? _orderMap.get(name) : 1e9;
+
+// Row layout: [bu, pf, tn, cust, reg, em, bg, tv0..tv8, ov0..ov8, tr0..tr8, or0..or8]
+const COL = { bu:0, pf:1, tn:2, cust:3, reg:4, em:5, bg:6 };
+const OFFS = { VT: 7, VO: 16, RT: 25, RO: 34 }; // Volume Target/Outlook, Revenue Target/Outlook
+function metricOffset(metric, scenario) {
+  return OFFS[(metric === 'Volume' ? 'V' : 'R') + (scenario === 'Target' ? 'T' : 'O')];
+}
+
+// Hierarchies (column indices in row arrays)
+const HIER_PATHS = {
+  Product:   [COL.bu, COL.pf, COL.tn, COL.cust],
+  EndMarket: [COL.em, COL.bg, COL.cust, COL.bu, COL.tn],
+  Region:    [COL.reg, COL.cust, COL.bu, COL.tn]
+};
+const HIER_LABELS = {
+  Product:   ['Product Line', 'Product Family', 'Reporting Tech Node', 'Customer'],
+  EndMarket: ['End Market', 'Battleground', 'Customer', 'Product Line', 'Reporting Tech Node'],
+  Region:    ['Region', 'Customer', 'Product Line', 'Reporting Tech Node']
+};
+const HIER_KEYS = {
+  Product:   ['bu', 'pf', 'tn', 'cust'],
+  EndMarket: ['em', 'bg', 'cust', 'bu', 'tn'],
+  Region:    ['reg', 'cust', 'bu', 'tn']
+};
+
+const filters = { em: null, cust: null, bu: null, pf: null, tn: null, reg: null };
+// Each multi-select filter registers a reset hook here so the global "Reset
+// filters" button can clear them all.
+let multiSelectResets = [];
+// Cross-filter registry: each multi-select registers its key, source column,
+// its selected-Set, its idx->item-element map, and a visibility refresher so
+// dropdown options can cascade based on the other dimensions' selections.
+const msRegistry = [];
+const FILTER_COL = { bu: COL.bu, pf: COL.pf, tn: COL.tn, cust: COL.cust, reg: COL.reg };
+
+// Category (End Market / Product Line / Region) is now GLOBAL — shared between Volume and Revenue tabs.
+let globalCategory = 'Product';
+const state = {
+  Volume:  { drilldown: null, mainChart: null, expanded: new Set() },
+  Revenue: { drilldown: null, mainChart: null, expanded: new Set() }
+};
+
+const fmt = (n, dp=0) => (n==null||isNaN(n)) ? '-' : n.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+const fmtCompact = n => { if (n==null||isNaN(n)) return '-'; if (Math.abs(n)>=1000) return (n/1000).toFixed(1)+'K'; return n.toFixed(0); };
+const unit = metric => metric === 'Revenue' ? '$m' : 'kwfr';
+const sumArr = a => a.reduce((x,y) => x + (y||0), 0);
+
+function stripePattern(color) {
+  const c = document.createElement('canvas');
+  c.width = 8; c.height = 8;
+  const g = c.getContext('2d');
+  g.fillStyle = color; g.fillRect(0,0,8,8);
+  g.strokeStyle = 'rgba(255,255,255,0.55)';
+  g.lineWidth = 2;
+  g.beginPath();
+  g.moveTo(-2, 8); g.lineTo(8, -2);
+  g.moveTo(2, 12); g.lineTo(12, 2);
+  g.stroke();
+  return g.createPattern(c, 'repeat');
+}
+
+function deltaCell(val) {
+  const cls = val > 0.5 ? 'delta-pos' : (val < -0.5 ? 'delta-neg' : 'delta-zero');
+  const sign = val > 0 ? '+' : '';
+  return `<td class="${cls}"><strong>${sign}${fmt(val, 0)}</strong></td>`;
+}
+
+// --- FILTERING + AGGREGATION ---
+function filteredRows() {
+  const rows = DATA.rows;
+  const setOf = v => (v && v.size) ? v : null;
+  const fbu = setOf(filters.bu), fpf = setOf(filters.pf), ftn = setOf(filters.tn),
+        fcust = setOf(filters.cust), freg = setOf(filters.reg);
+  const fem = filters.em;
+  return rows.filter(r =>
+    (fbu === null || fbu.has(r[COL.bu])) &&
+    (fpf === null || fpf.has(r[COL.pf])) &&
+    (ftn === null || ftn.has(r[COL.tn])) &&
+    (fcust === null || fcust.has(r[COL.cust])) &&
+    (freg === null || freg.has(r[COL.reg])) &&
+    (fem === null || r[COL.em] === fem)
+  );
+}
+
+// Rows matching every active filter EXCEPT the named dimension. Used to compute
+// which option values are still reachable for that dimension's dropdown, so the
+// filters cascade off one another without a selection hiding its own siblings.
+function rowsMatchingExcept(exceptKey) {
+  const setOf = v => (v && v.size) ? v : null;
+  const fbu = setOf(filters.bu), fpf = setOf(filters.pf), ftn = setOf(filters.tn),
+        fcust = setOf(filters.cust), freg = setOf(filters.reg);
+  const fem = filters.em;
+  return DATA.rows.filter(r =>
+    (exceptKey === 'bu'   || fbu === null   || fbu.has(r[COL.bu])) &&
+    (exceptKey === 'pf'   || fpf === null   || fpf.has(r[COL.pf])) &&
+    (exceptKey === 'tn'   || ftn === null   || ftn.has(r[COL.tn])) &&
+    (exceptKey === 'cust' || fcust === null || fcust.has(r[COL.cust])) &&
+    (exceptKey === 'reg'  || freg === null  || freg.has(r[COL.reg])) &&
+    (fem === null || r[COL.em] === fem)
+  );
+}
+
+// Recompute each filter dropdown's reachable values and hide options that no
+// longer apply. A currently-selected option always stays visible so it can be
+// unchecked even if another filter would exclude it.
+function refreshFilterOptions() {
+  msRegistry.forEach(ms => {
+    const valid = new Set();
+    const rows = rowsMatchingExcept(ms.key);
+    for (let i = 0; i < rows.length; i++) valid.add(rows[i][ms.col]);
+    ms.itemByIdx.forEach((item, idx) => {
+      item.dataset.xf = (valid.has(idx) || ms.selected.has(idx)) ? '1' : '0';
+    });
+    ms.applyVisibility();
+  });
+}
+
+function totalsForRows(rows, metric, scenario) {
+  const off = metricOffset(metric, scenario);
+  const n = activeYearIdx.length;
+  const totals = new Array(n).fill(0);
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    for (let j = 0; j < n; j++) totals[j] += r[off + activeYearIdx[j]];
+  }
+  for (let j = 0; j < n; j++) totals[j] = Math.round(totals[j] * 100) / 100;
+  return totals;
+}
+
+function kpisFor(rows, metric) {
+  const t = totalsForRows(rows, metric, 'Target');
+  const o = totalsForRows(rows, metric, 'Outlook');
+  return {
+    target_2025: t[0], target_2033: t[t.length-1],
+    outlook_2025: o[0], outlook_2033: o[o.length-1],
+    target_cagr_25_33: t[0] > 0 ? Math.round(((Math.pow(t[t.length-1]/t[0], 1/8) - 1) * 100) * 10) / 10 : 0,
+    outlook_cagr_25_33: o[0] > 0 ? Math.round(((Math.pow(o[o.length-1]/o[0], 1/8) - 1) * 100) * 10) / 10 : 0,
+    delta_2033: Math.round((o[o.length-1] - t[t.length-1]) * 100) / 100,
+    target_total: sumArr(t), outlook_total: sumArr(o)
+  };
+}
+
+// Build hierarchies for chart (top breakdown + children by 2nd level)
+function chartHierarchy(rows, metric, scenario, category) {
+  const off = metricOffset(metric, scenario);
+  const path = HIER_PATHS[category];
+  const labels = HIER_LABELS[category];
+  const keys = HIER_KEYS[category];
+  const lk1 = LK[keys[0]], lk2 = LK[keys[1]];
+  if (!lk1 || lk1.length === 0) return { empty: true, l1_label: labels[0], l2_label: labels[1], top: [], children: {} };
+  const n = activeYearIdx.length;
+  // Aggregate level-1
+  const topMap = new Map();
+  for (const r of rows) {
+    const k1 = r[path[0]]; if (k1 < 0) continue;
+    let acc = topMap.get(k1);
+    if (!acc) { acc = new Array(n).fill(0); topMap.set(k1, acc); }
+    for (let j = 0; j < n; j++) acc[j] += r[off + activeYearIdx[j]];
+  }
+  // Level 2 (per level-1 parent)
+  const childMap = new Map();
+  for (const r of rows) {
+    const k1 = r[path[0]], k2 = r[path[1]]; if (k1 < 0 || k2 < 0) continue;
+    let inner = childMap.get(k1);
+    if (!inner) { inner = new Map(); childMap.set(k1, inner); }
+    let acc = inner.get(k2);
+    if (!acc) { acc = new Array(n).fill(0); inner.set(k2, acc); }
+    for (let j = 0; j < n; j++) acc[j] += r[off + activeYearIdx[j]];
+  }
+  const top = [];
+  for (const [k1, vals] of topMap.entries()) {
+    const total = sumArr(vals);
+    if (Math.abs(total) < 0.01) continue;
+    top.push({ name: lk1[k1], values: vals.map(v => Math.round(v*100)/100), total });
+  }
+  top.sort((a,b) => b.total - a.total);
+  const children = {};
+  for (const [k1, inner] of childMap.entries()) {
+    const arr = [];
+    for (const [k2, vals] of inner.entries()) {
+      const total = sumArr(vals);
+      if (Math.abs(total) < 0.01) continue;
+      arr.push({ name: lk2[k2], values: vals.map(v => Math.round(v*100)/100), total });
+    }
+    arr.sort((a,b) => b.total - a.total);
+    children[lk1[k1]] = arr;
+  }
+  // When the level-2 dimension is Customer, bucket each parent's long tail
+  // into Top 10 + Next 10 (11-20) + Next 10 (21-30) + Others, ranked by
+  // Revenue (Outlook) WITHIN that parent so each region shows its own top
+  // customers (not the global ranking).
+  let custRankByParent = null;
+  if (keys[1] === 'cust') {
+    const revOff = metricOffset('Revenue', 'Outlook');
+    const revByParentCust = new Map();
+    for (const r of rows) {
+      const k1 = r[path[0]], k2 = r[path[1]];
+      if (k1 < 0 || k2 < 0) continue;
+      let inner = revByParentCust.get(k1);
+      if (!inner) { inner = new Map(); revByParentCust.set(k1, inner); }
+      let t = inner.get(k2) || 0;
+      for (let j = 0; j < n; j++) t += r[revOff + activeYearIdx[j]];
+      inner.set(k2, t);
+    }
+    custRankByParent = {};
+    for (const [k1, innerRev] of revByParentCust.entries()) {
+      const k1Name = lk1[k1];
+      const ranked = [...innerRev.entries()]
+        .filter(e => e[1] >= 0.01)
+        .sort((a, b) => b[1] - a[1])
+        .map(e => lk2[e[0]]);
+      const rmap = new Map();
+      ranked.slice(0, 10).forEach((nm, i) => rmap.set(nm, i));
+      rmap.set('Next 10 (11-20)', 10);
+      rmap.set('Next 10 (21-30)', 20);
+      rmap.set('Others', 30);
+      const top10Set = new Set(ranked.slice(0, 10));
+      const next20Set = new Set(ranked.slice(10, 20));
+      const next30Set = new Set(ranked.slice(20, 30));
+      const bucketOf = nm => {
+        if (top10Set.has(nm)) return null;
+        if (next20Set.has(nm)) return 'Next 10 (11-20)';
+        if (next30Set.has(nm)) return 'Next 10 (21-30)';
+        return 'Others';
+      };
+      const arr = children[k1Name] || [];
+      const indiv = [];
+      const buckets = {};
+      for (const entry of arr) {
+        const bn = bucketOf(entry.name);
+        if (bn === null) {
+          indiv.push(entry);
+        } else {
+          if (!buckets[bn]) buckets[bn] = { name: bn, values: new Array(n).fill(0), total: 0 };
+          for (let j = 0; j < n; j++) buckets[bn].values[j] += entry.values[j];
+        }
+      }
+      const bucketsArr = ['Next 10 (11-20)', 'Next 10 (21-30)', 'Others']
+        .filter(bn => buckets[bn])
+        .map(bn => {
+          buckets[bn].values = buckets[bn].values.map(v => Math.round(v*100)/100);
+          buckets[bn].total = sumArr(buckets[bn].values);
+          return buckets[bn];
+        });
+      const merged = [...indiv, ...bucketsArr];
+      merged.sort((a, b) => {
+        const ra = rmap.has(a.name) ? rmap.get(a.name) : 1e9;
+        const rb = rmap.has(b.name) ? rmap.get(b.name) : 1e9;
+        return ra - rb;
+      });
+      children[k1Name] = merged;
+      custRankByParent[k1Name] = rmap;
+    }
+  }
+  return { empty: top.length === 0, l1_label: labels[0], l2_label: labels[1], top, children, custRankByParent };
+}
+
+// Build hierarchy tree (all levels) for the details table
+function buildTree(rows, metric, category, maxPerLevel) {
+  maxPerLevel = maxPerLevel || 25;
+  const path = HIER_PATHS[category];
+  const keys = HIER_KEYS[category];
+  const offT = metricOffset(metric, 'Target');
+  const offO = metricOffset(metric, 'Outlook');
+  function rec(rows, depth) {
+    if (depth >= path.length || rows.length === 0) return [];
+    const col = path[depth];
+    const groups = new Map();
+    for (const r of rows) {
+      const k = r[col]; if (k < 0) continue;
+      let arr = groups.get(k);
+      if (!arr) { arr = []; groups.set(k, arr); }
+      arr.push(r);
+    }
+    const lk = LK[keys[depth]];
+    const n = activeYearIdx.length;
+    const nodes = [];
+    for (const [k, grp] of groups.entries()) {
+      const t = new Array(n).fill(0);
+      const o = new Array(n).fill(0);
+      for (const r of grp) {
+        for (let j = 0; j < n; j++) { t[j] += r[offT + activeYearIdx[j]]; o[j] += r[offO + activeYearIdx[j]]; }
+      }
+      const tt = sumArr(t), to = sumArr(o);
+      if (Math.abs(tt) < 0.01 && Math.abs(to) < 0.01) continue;
+      const node = {
+        n: lk[k],
+        t: t.map(v => Math.round(v*100)/100),
+        o: o.map(v => Math.round(v*100)/100),
+        _rows: grp,
+        _depth: depth
+      };
+      nodes.push(node);
+    }
+    // Customer-level rows are sorted by absolute delta magnitude (highest gap first).
+    // Other levels keep the default sort by Target total descending.
+    if (keys[depth] === 'cust') {
+      nodes.sort((a, b) => Math.abs(sumArr(b.o) - sumArr(b.t)) - Math.abs(sumArr(a.o) - sumArr(a.t)));
+    } else {
+      nodes.sort((a,b) => sumArr(b.t) - sumArr(a.t));
+    }
+    const limited = nodes.slice(0, maxPerLevel);
+    // Defer recursion until needed via lazy children
+    for (const n of limited) {
+      Object.defineProperty(n, 'c', {
+        configurable: true,
+        get() {
+          const c = rec(n._rows, depth + 1);
+          delete this._rows;
+          Object.defineProperty(this, 'c', { value: c, enumerable: true });
+          return c;
+        }
+      });
+    }
+    return limited;
+  }
+  return rec(rows, 0);
+}
+
+// Pre-compute |Outlook - Target| revenue delta per customer (across all years)
+// so the Customer filter can be sorted by the biggest gaps first.
+function customerGapOrder() {
+  const offT = OFFS.RT, offO = OFFS.RO;
+  const n = LK.cust.length;
+  const deltas = new Array(n).fill(0);
+  for (const r of DATA.rows) {
+    const c = r[COL.cust]; if (c < 0) continue;
+    for (let y = 0; y < YEARS.length; y++) deltas[c] += r[offO + y] - r[offT + y];
+  }
+  // Pair (index, delta) and sort by absolute delta descending. Customers with
+  // zero delta are kept at the end in alphabetical order.
+  const pairs = LK.cust.map((name, idx) => ({ idx, name, delta: deltas[idx] }));
+  pairs.sort((a, b) => {
+    const ad = Math.abs(a.delta), bd = Math.abs(b.delta);
+    if (bd !== ad) return bd - ad;
+    return a.name.localeCompare(b.name);
+  });
+  return pairs;
+}
+
+// --- FILTER UI ---
+function populateFilters() {
+  function fill(selId, list, key) {
+    const sel = document.getElementById(selId);
+    sel.innerHTML = '';
+    const all = document.createElement('option');
+    all.value = ''; all.textContent = `All (${list.length})`;
+    sel.appendChild(all);
+    list.forEach((v, i) => {
+      const o = document.createElement('option');
+      o.value = i; o.textContent = v;
+      sel.appendChild(o);
+    });
+    sel.addEventListener('change', () => {
+      filters[key] = sel.value === '' ? null : parseInt(sel.value);
+      rebuildAll();
+    });
+  }
+  // Convert a lookup array into {idx, name} pairs, dropping blanks, sorted
+  // alphabetically. Used for every dimension except Customer (which is ordered
+  // by revenue gap via customerGapOrder()).
+  function lkPairs(arr) {
+    return (arr || [])
+      .map((name, idx) => ({ idx, name: (name || '').trim() }))
+      .filter(p => p.name)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // Generic multi-select dropdown: a toggle button opens a panel with a search
+  // box and a checkbox per option. filters[key] holds a Set of lookup indices
+  // (null/empty = all). Builds its own panel DOM inside the given wrap element.
+  function buildMultiSelect(wrapId, pairs, key, allLabel, noun) {
+    const wrap = document.getElementById(wrapId);
+    if (!wrap) return;
+    wrap.innerHTML =
+      '<button type="button" class="ms-toggle"><span class="ms-label">' + allLabel + '</span><span class="ms-caret">&#9662;</span></button>' +
+      '<div class="ms-panel" hidden>' +
+        '<input type="text" class="ms-search" placeholder="Search ' + noun + '&hellip;">' +
+        '<div class="ms-actions"><span class="ms-count"></span><button type="button" class="ms-clear">Clear</button></div>' +
+        '<div class="ms-list"></div>' +
+      '</div>';
+    const toggle = wrap.querySelector('.ms-toggle');
+    const panel = wrap.querySelector('.ms-panel');
+    const label = wrap.querySelector('.ms-label');
+    const search = wrap.querySelector('.ms-search');
+    const list = wrap.querySelector('.ms-list');
+    const clearBtn = wrap.querySelector('.ms-clear');
+    const countEl = wrap.querySelector('.ms-count');
+    const selected = new Set();
+    const itemByIdx = new Map();
+
+    pairs.forEach(p => {
+      const item = document.createElement('label');
+      item.className = 'ms-item';
+      item.dataset.name = p.name.toLowerCase();
+      item.dataset.xf = '1';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = p.idx;
+      const span = document.createElement('span');
+      span.textContent = p.name;
+      item.appendChild(cb);
+      item.appendChild(span);
+      list.appendChild(item);
+      itemByIdx.set(p.idx, item);
+      cb.addEventListener('change', () => {
+        if (cb.checked) selected.add(p.idx); else selected.delete(p.idx);
+        applySelection();
+      });
+    });
+
+    function nameOf(idx) { const m = pairs.find(p => p.idx === idx); return m ? m.name : ''; }
+
+    function applySelection() {
+      filters[key] = selected.size ? new Set(selected) : null;
+      const n = selected.size;
+      if (n === 0) { label.textContent = allLabel; toggle.classList.remove('has-sel'); }
+      else if (n === 1) { label.textContent = nameOf([...selected][0]); toggle.classList.add('has-sel'); }
+      else { label.textContent = n + ' ' + noun + ' selected'; toggle.classList.add('has-sel'); }
+      countEl.textContent = n ? (n + ' selected') : '';
+      rebuildAll();
+      refreshFilterOptions();
+    }
+
+    // Show an option only when it both matches the search box AND is still
+    // reachable given the other filters (dataset.xf set by refreshFilterOptions).
+    function applyVisibility() {
+      const q = search.value.trim().toLowerCase();
+      let visible = 0;
+      list.querySelectorAll('.ms-item').forEach(it => {
+        const show = (!q || it.dataset.name.includes(q)) && it.dataset.xf !== '0';
+        it.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      let empty = list.querySelector('.ms-empty');
+      if (visible === 0) {
+        if (!empty) { empty = document.createElement('div'); empty.className = 'ms-empty'; empty.textContent = 'No matches'; list.appendChild(empty); }
+      } else if (empty) { empty.remove(); }
+    }
+    search.addEventListener('input', applyVisibility);
+
+    clearBtn.addEventListener('click', () => {
+      selected.clear();
+      list.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+      applySelection();
+    });
+
+    function openPanel() {
+      // Close any other open filter dropdown before opening this one.
+      document.querySelectorAll('.ms-panel').forEach(p => { if (p !== panel) p.hidden = true; });
+      panel.hidden = false; search.value = ''; search.dispatchEvent(new Event('input')); search.focus();
+    }
+    function closePanel() { panel.hidden = true; }
+    toggle.addEventListener('click', e => { e.stopPropagation(); if (panel.hidden) openPanel(); else closePanel(); });
+    panel.addEventListener('click', e => e.stopPropagation());
+    document.addEventListener('click', () => { if (!panel.hidden) closePanel(); });
+
+    // Register a reset hook so the global "Reset filters" button can clear it.
+    multiSelectResets.push(() => {
+      selected.clear();
+      list.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+      search.value = '';
+      applySelection();
+    });
+
+    // Register for cross-filtering so other dimensions can constrain this one.
+    if (FILTER_COL[key] !== undefined) {
+      msRegistry.push({ key, col: FILTER_COL[key], selected, itemByIdx, applyVisibility });
+    }
+  }
+  fill('filter-em', LK.em || [], 'em');
+  buildMultiSelect('ms-bu', lkPairs(LK.bu), 'bu', 'All product lines', 'product lines');
+  buildMultiSelect('ms-pf', lkPairs(LK.pf), 'pf', 'All product families', 'product families');
+  buildMultiSelect('ms-tn', lkPairs(LK.tn), 'tn', 'All tech nodes', 'tech nodes');
+  buildMultiSelect('ms-cust', customerGapOrder(), 'cust', 'All customers', 'customers');
+  buildMultiSelect('ms-reg', lkPairs(LK.reg), 'reg', 'All regions', 'regions');
+  refreshFilterOptions();
+  // Disable End Market if it only has placeholder/empty values
+  const emSel = document.getElementById('filter-em');
+  if (!LK.em || LK.em.length <= 1) {
+    emSel.disabled = true;
+    emSel.title = 'End Market column has no data in the source file';
+  }
+  document.getElementById('filter-reset').addEventListener('click', () => {
+    filters.em = null;
+    document.querySelectorAll('#filter-bar select').forEach(s => s.value = '');
+    // Clear every multi-select (bu, pf, tn, cust, reg) via its registered hook.
+    multiSelectResets.forEach(fn => fn());
+    refreshFilterOptions();
+    rebuildAll();
+  });
+
+  // Year-range toggle: 2025-2033 (all) vs 2025-2030 (short)
+  document.querySelectorAll('#year-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const range = btn.dataset.range;
+      activeYearIdx = range === 'short' ? [0,1,2,3,4,5] : YEARS.map((_, i) => i);
+      document.querySelectorAll('#year-toggle button').forEach(b => b.classList.toggle('active', b === btn));
+      rebuildAll();
+    });
+  });
+
+  // Global category toggle (End Market / Product Line / Region) - affects both tabs.
+  document.querySelectorAll('#category-global .btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      globalCategory = btn.dataset.cat;
+      state.Volume.drilldown = null;
+      state.Volume.expanded = new Set();
+      state.Revenue.drilldown = null;
+      state.Revenue.expanded = new Set();
+      document.querySelectorAll('#category-global .btn').forEach(b => b.classList.toggle('active', b === btn));
+      rebuildAll();
+    });
+  });
+}
+
+function rebuildAll() {
+  const rows = filteredRows();
+  buildPanel('Volume', rows);
+  buildPanel('Revenue', rows);
+  if (outlookRepaint) outlookRepaint();
+  if (anomalyRepaint) anomalyRepaint();
+}
+
+// --- PANEL ---
+function buildPanel(metric, rows) {
+  const root = document.getElementById('panel-' + metric);
+  const u = unit(metric);
+
+  const mainCardHtml = `
+    <div class="card">
+      <div class="controls">
+        <div class="breadcrumb" id="bc-${metric}"></div>
+        <div class="scenario-key">
+          <span class="swatch"><span class="box target"></span>Product Line View</span>
+          <span class="swatch"><span class="box outlook"></span>PL-Sales Aligned View</span>
+        </div>
+      </div>
+      <h3 id="title-${metric}" style="margin-bottom:12px">Product Line View vs PL-Sales Aligned View  |  ${metric} (${u})</h3>
+      <div class="chart-wrap" id="wrap-${metric}"></div>
+      <div class="hint" style="margin-top:8px">Tip: click a colored segment or legend item to drill down into the next level.</div>
+    </div>
+  `;
+
+  const treeCardHtml = `
+    <div class="card">
+      <div class="table-controls">
+        <h3 id="tree-title-${metric}" style="margin-right:auto">${metric} Details</h3>
+        <button class="tbl-btn" data-action="expand-all" data-metric="${metric}">Expand all</button>
+        <button class="tbl-btn" data-action="collapse-all" data-metric="${metric}">Collapse all</button>
+      </div>
+      <div class="sub" id="tree-sub-${metric}"></div>
+      <div style="overflow-x:auto"><table class="tree-table" id="tree-${metric}"></table></div>
+    </div>
+  `;
+
+  root.innerHTML = mainCardHtml + treeCardHtml;
+
+  const s = state[metric];
+  // Reset drilldown when filters change (tab is re-built)
+  s.drilldown = null;
+  s.expanded = new Set();
+  root.querySelectorAll('.tbl-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      if (b.dataset.action === 'expand-all') {
+        const tree = getActiveTree(metric, rows);
+        const exp = s.expanded;
+        const collect = (nodes, prefix) => nodes.forEach((n, i) => {
+          const id = prefix + '/' + i;
+          if (n.c && n.c.length) { exp.add(id); collect(n.c, id); }
+        });
+        collect(tree, '');
+      } else {
+        s.expanded = new Set();
+      }
+      renderTree(metric, rows);
+    });
+  });
+
+  renderMainChart(metric, rows);
+  renderTree(metric, rows);
+}
+
+function getActiveTree(metric, rows) {
+  const s = state[metric];
+  let tree = buildTree(rows, metric, globalCategory);
+  if (s.drilldown) {
+    const node = tree.find(n => n.n === s.drilldown);
+    tree = node && node.c ? node.c : [];
+  }
+  return tree;
+}
+
+function renderMainChart(metric, rows) {
+  const s = state[metric];
+  const u = unit(metric);
+  const tH = chartHierarchy(rows, metric, 'Target', globalCategory);
+  const oH = chartHierarchy(rows, metric, 'Outlook', globalCategory);
+  const level = s.drilldown ? 2 : 1;
+  const tRows = level === 1 ? tH.top : (tH.children[s.drilldown] || []);
+  const oRows = level === 1 ? oH.top : (oH.children[s.drilldown] || []);
+  const hier = tH;
+
+  const wrap = document.getElementById('wrap-' + metric);
+  const titleEl = document.getElementById('title-' + metric);
+  const bcEl = document.getElementById('bc-' + metric);
+  if (s.mainChart) { s.mainChart.destroy(); s.mainChart = null; }
+
+  let bcHtml = `<span class="crumb" data-action="root">All</span><span class="sep">&#9656;</span>`;
+  if (level === 1) bcHtml += `<span class="crumb current">${hier.l1_label}</span>`;
+  else bcHtml += `<span class="crumb" data-action="up">${hier.l1_label}</span><span class="sep">&#9656;</span><span class="crumb current">${s.drilldown}</span>`;
+  bcEl.innerHTML = bcHtml;
+  bcEl.querySelectorAll('.crumb[data-action]').forEach(c => {
+    c.addEventListener('click', () => {
+      s.drilldown = null;
+      const rowsNow = filteredRows();
+      renderMainChart(metric, rowsNow);
+      renderTree(metric, rowsNow);
+    });
+  });
+
+  const dimLabel = level === 1 ? hier.l1_label : hier.l2_label;
+  titleEl.textContent = level === 1
+    ? `Product Line View vs PL-Sales Aligned View  |  ${metric} (${u})  |  Stacked by ${dimLabel}`
+    : `Product Line View vs PL-Sales Aligned View  |  ${metric} (${u})  |  Stacked by ${dimLabel} within ${s.drilldown}`;
+
+  if (hier.empty || tRows.length === 0) {
+    wrap.innerHTML = `<div class="empty-note"><strong>No data available</strong>The current filter selection has no matching data for this view.</div>`;
+    return;
+  }
+
+  wrap.innerHTML = `<canvas id="main-${metric}"></canvas>`;
+  const ctx = document.getElementById('main-' + metric).getContext('2d');
+
+  const nameSet = new Set();
+  tRows.forEach(r => nameSet.add(r.name));
+  oRows.forEach(r => nameSet.add(r.name));
+  const totals = {};
+  [...tRows, ...oRows].forEach(r => { totals[r.name] = (totals[r.name]||0) + r.total; });
+  const cr = (hier && hier.custRankByParent && s.drilldown && hier.custRankByParent[s.drilldown] instanceof Map) ? hier.custRankByParent[s.drilldown] : null;
+  const isEndCategory = nm => nm === 'Other/Corporate' || (typeof nm === 'string' && nm.toLowerCase() === 'unknown');
+  const names = [...nameSet].sort((a,b) => {
+    const aEnd = isEndCategory(a);
+    const bEnd = isEndCategory(b);
+    if (aEnd !== bEnd) return aEnd ? 1 : -1;
+    if (cr) {
+      const ra = cr.has(a) ? cr.get(a) : 1e9;
+      const rb = cr.has(b) ? cr.get(b) : 1e9;
+      if (ra !== rb) return ra - rb;
+    }
+    return orderFor(a) - orderFor(b);
+  });
+  const tMap = Object.fromEntries(tRows.map(r => [r.name, r.values]));
+  const oMap = Object.fromEntries(oRows.map(r => [r.name, r.values]));
+  const zeros = activeYearIdx.map(() => 0);
+  const nullEarly = v => v.map((x, i) => i < 3 ? null : x);
+  const BAR_MAX = 48;
+  // Scale categoryPercentage with the number of active years so the per-bar slot
+  // width stays constant. Without this, fewer years -> wider categories -> wider
+  // slots -> bars hit the maxBarThickness cap and leave white space between them.
+  // Calibrated so 9 years -> 0.63, 6 years -> 0.42 (1.5x wider bars vs. previous baseline).
+  const CAT_PCT = 0.63 * (activeYearIdx.length / 9);
+
+  const datasets = [];
+  names.forEach((n, i) => {
+    const color = colorFor(n);
+    datasets.push({ label: n, data: tMap[n] || zeros, backgroundColor: color, borderColor: color, borderWidth: 0,
+      stack: 'Target', categoryName: n, scenario: 'Product Line View',
+      maxBarThickness: BAR_MAX, barPercentage: 1.0, categoryPercentage: CAT_PCT, borderRadius: 0 });
+    datasets.push({ label: n + ' (PL-Sales Aligned View)', data: nullEarly(oMap[n] || zeros),
+      backgroundColor: stripePattern(color), borderColor: color, borderWidth: 0,
+      stack: 'Outlook', categoryName: n, scenario: 'PL-Sales Aligned View', hideInLegend: true,
+      maxBarThickness: BAR_MAX, barPercentage: 1.0, categoryPercentage: CAT_PCT, borderRadius: 0 });
+  });
+
+  // Plugin: draw 2025 - 2027 shading + "As of April RPM" label directly on the canvas
+  const shadingDrawer = {
+    id: 'shadingDrawer_' + metric,
+    beforeDraw(chart) {
+      const cx = chart.ctx;
+      const xs = chart.scales.x;
+      const ca = chart.chartArea;
+      if (!cx || !xs || !ca) return;
+      const lbls = chart.data.labels || [];
+      if (lbls.length < 3) return;
+      const px0 = xs.getPixelForValue(lbls[0]);
+      const px2 = xs.getPixelForValue(lbls[2]);
+      const cw = lbls.length > 1 ? (xs.getPixelForValue(lbls[1]) - xs.getPixelForValue(lbls[0])) : 50;
+      const lf = px0 - cw / 2;
+      const rt = px2 + cw / 2;
+      cx.save();
+      cx.fillStyle = '#D6E4F5';
+      cx.fillRect(lf, ca.top, rt - lf, ca.bottom - ca.top);
+      cx.strokeStyle = '#5A7AB8'; cx.lineWidth = 1;
+      cx.strokeRect(lf + 0.5, ca.top + 0.5, rt - lf - 1, ca.bottom - ca.top - 1);
+      const labelText = 'As of April RPM';
+      cx.font = '600 11px "Arial", "Helvetica Neue", sans-serif';
+      const tw = cx.measureText(labelText).width;
+      const padX = 9, boxH = 20;
+      const boxW = tw + 2 * padX;
+      const boxLeft = (lf + rt) / 2 - boxW / 2;
+      const boxTop = Math.max(2, ca.top - boxH - 6);
+      cx.fillStyle = '#E5EEF8';
+      cx.fillRect(boxLeft, boxTop, boxW, boxH);
+      cx.strokeStyle = '#7BA0D4'; cx.lineWidth = 1;
+      cx.strokeRect(boxLeft + 0.5, boxTop + 0.5, boxW - 1, boxH - 1);
+      cx.fillStyle = '#0033A0';
+      cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      cx.fillText(labelText, boxLeft + boxW / 2, boxTop + boxH / 2);
+      cx.restore();
+    }
+  };
+
+  // Plugin: draw the total of each stacked bar (one number per Target / Outlook stack per year).
+  const stackTotalsDrawer = {
+    id: 'stackTotalsDrawer_' + metric,
+    afterDatasetsDraw(chart) {
+      const cx = chart.ctx;
+      const dsets = chart.data.datasets;
+      // Map of "yearIdx|stackName" -> { total, topY, x }
+      const buckets = new Map();
+      dsets.forEach((d, di) => {
+        const meta = chart.getDatasetMeta(di);
+        if (meta.hidden) return;
+        meta.data.forEach((bar, bi) => {
+          const v = d.data[bi];
+          if (v == null || v === 0 || !bar) return;
+          const key = bi + '|' + d.stack;
+          let acc = buckets.get(key);
+          if (!acc) { acc = { total: 0, topY: Infinity, x: bar.x }; buckets.set(key, acc); }
+          acc.total += v;
+          if (bar.y < acc.topY) acc.topY = bar.y;
+        });
+      });
+      cx.save();
+      cx.font = '700 11px "Arial", "Helvetica Neue", sans-serif';
+      cx.textAlign = 'center';
+      cx.textBaseline = 'bottom';
+      cx.fillStyle = '#1A1A1A';
+      buckets.forEach((acc) => {
+        if (acc.topY === Infinity) return;
+        cx.fillText(Math.round(acc.total).toLocaleString('en-US'), acc.x, acc.topY - 3);
+      });
+      cx.restore();
+    }
+  };
+
+  // Plugin: draw the value inside each colored stack segment (skips segments too small to fit text).
+  const segmentLabelsDrawer = {
+    id: 'segmentLabelsDrawer_' + metric,
+    afterDatasetsDraw(chart) {
+      const cx = chart.ctx;
+      const dsets = chart.data.datasets;
+      cx.save();
+      cx.font = '700 10px "Arial", "Helvetica Neue", sans-serif';
+      cx.textAlign = 'center';
+      cx.textBaseline = 'middle';
+      cx.lineWidth = 3;
+      dsets.forEach((d, di) => {
+        const meta = chart.getDatasetMeta(di);
+        if (meta.hidden) return;
+        meta.data.forEach((bar, bi) => {
+          const v = d.data[bi];
+          if (v == null || v === 0 || !bar) return;
+          const segH = Math.abs(bar.base - bar.y);
+          if (segH < 14) return; // too small for a readable label
+          const cy = (bar.y + bar.base) / 2;
+          const text = Math.round(v).toLocaleString('en-US');
+          // Dark outline for legibility on top of any stack color (including the striped Outlook pattern).
+          cx.strokeStyle = 'rgba(0,0,0,0.7)';
+          cx.strokeText(text, bar.x, cy);
+          cx.fillStyle = '#ffffff';
+          cx.fillText(text, bar.x, cy);
+        });
+      });
+      cx.restore();
+    }
+  };
+
+  s.mainChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: ACTIVE(), datasets },
+    plugins: [segmentLabelsDrawer, stackTotalsDrawer],
+    options: {
+      responsive: true, maintainAspectRatio: false, skipNull: true,
+      layout: { padding: { top: 34 } },
+      onClick: (evt, elements) => {
+        if (level !== 1) return; if (!elements.length) return;
+        const ds = datasets[elements[0].datasetIndex];
+        if (hier.children && hier.children[ds.categoryName] && hier.children[ds.categoryName].length) {
+          s.drilldown = ds.categoryName;
+          const r = filteredRows();
+          renderMainChart(metric, r); renderTree(metric, r);
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { size: 11 }, boxWidth: 12, padding: 8,
+            filter: (item, chartData) => !chartData.datasets[item.datasetIndex].hideInLegend },
+          onClick: (e, legendItem) => {
+            if (level !== 1) return;
+            const ds = datasets[legendItem.datasetIndex];
+            if (hier.children && hier.children[ds.categoryName] && hier.children[ds.categoryName].length) {
+              s.drilldown = ds.categoryName;
+              const r = filteredRows();
+              renderMainChart(metric, r); renderTree(metric, r);
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            title: (items) => items.length ? `${items[0].label}  -  ${datasets[items[0].datasetIndex].scenario}` : '',
+            label: (ctx) => datasets[ctx.datasetIndex].categoryName + ': ' + fmt(ctx.raw, 0) + ' ' + u
+          }
+        }
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 12, weight: '600' } } },
+        y: { stacked: true, beginAtZero: true, min: 0, grid: { color: '#eef1f6' }, ticks: { font: { size: 11 }, callback: v => Math.round(v).toLocaleString('en-US') }, title: { display: true, text: u, font: { size: 11 }, color: '#6a778f' } }
+      }
+    }
+  });
+}
+
+// --- TREE TABLE ---
+function renderTree(metric, rows) {
+  const s = state[metric];
+  const tree = getActiveTree(metric, rows);
+  const tbl = document.getElementById('tree-' + metric);
+  const titleEl = document.getElementById('tree-title-' + metric);
+  const subEl = document.getElementById('tree-sub-' + metric);
+  const u = unit(metric);
+  const path = HIER_LABELS[globalCategory];
+  const startLevel = s.drilldown ? 1 : 0;
+  const pathLabels = path.slice(startLevel).join(' -> ');
+  titleEl.textContent = `${metric} Details${s.drilldown ? ' - ' + s.drilldown : ''}`;
+  subEl.textContent = `Hierarchy: ${pathLabels}  |  Click a row name to expand / collapse  |  Delta = PL-Sales Aligned View - Product Line View  |  ${metric} in ${u}`;
+
+  const activeLabels = ACTIVE();
+  const colCount = activeLabels.length + 3;
+  if (!tree || tree.length === 0) {
+    tbl.innerHTML = `<thead><tr><th colspan="${colCount}"></th></tr></thead><tbody><tr><td colspan="${colCount}" style="padding:40px; text-align:center; color:#8892a8">No data for this view.</td></tr></tbody>`;
+    return;
+  }
+  const nameHeader = path[startLevel] + (path.length > startLevel + 1 ? ' / ...' : '');
+  const yearColW = activeLabels.length >= 9 ? 92 : 110;
+  let html = '<thead><tr><th style="width:180px">' + nameHeader + '</th><th style="width:100px">Series</th>';
+  activeLabels.forEach(y => html += `<th style="width:${yearColW}px">${y}</th>`);
+  html += '<th style="width:100px">Total</th></tr></thead><tbody>';
+  html += renderTreeRows(tree, 0, '', metric);
+  html += '</tbody>';
+  tbl.innerHTML = html;
+  tbl.querySelectorAll('.tree-row.tr-target.has-children .name-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const id = cell.parentElement.dataset.id;
+      const exp = s.expanded;
+      if (exp.has(id)) exp.delete(id); else exp.add(id);
+      renderTree(metric, rows);
+    });
+  });
+}
+
+function renderTreeRows(nodes, level, parentId, metric) {
+  const exp = state[metric].expanded;
+  let html = '';
+  nodes.forEach((node, i) => {
+    const id = parentId + '/' + i;
+    const hasChildren = node.c && node.c.length > 0;
+    const isOpen = exp.has(id);
+    const toggle = hasChildren
+      ? `<span class="tree-toggle">${isOpen ? '&#9662;' : '&#9656;'}</span>`
+      : `<span class="tree-toggle placeholder">&#9656;</span>`;
+    const tT = sumArr(node.t), tO = sumArr(node.o);
+    const delta = tO - tT;
+    const cls = hasChildren ? 'has-children' : '';
+    html += `<tr class="tree-row tr-target level-${level} ${cls}" data-id="${id}">`;
+    html += `<td class="name-cell" rowspan="3">${toggle}${escapeHtml(node.n)}</td>`;
+    html += `<td class="scn-cell">PL View</td>`;
+    node.t.forEach(v => html += `<td>${fmt(v, 0)}</td>`);
+    html += `<td><strong>${fmt(tT, 0)}</strong></td></tr>`;
+    html += `<tr class="tree-row tr-outlook level-${level} ${cls}">`;
+    html += `<td class="scn-cell">PL-Sales View</td>`;
+    node.o.forEach(v => html += `<td>${fmt(v, 0)}</td>`);
+    html += `<td><strong>${fmt(tO, 0)}</strong></td></tr>`;
+    html += `<tr class="tree-row tr-delta level-${level} ${cls}">`;
+    html += `<td class="scn-cell"><strong>Delta</strong></td>`;
+    node.o.forEach((v, idx) => html += deltaCell(v - node.t[idx]));
+    html += deltaCell(delta) + `</tr>`;
+    if (hasChildren && isOpen) html += renderTreeRows(node.c, level + 1, id, metric);
+  });
+  return html;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+
+// Two-level tabs: top groups ("PL - Sales Alignment", "Anomaly Details") each
+// contain sub-tabs. activateTab(panelKey) shows the right group + sub-tab + panel.
+const TAB_GROUPS = { align: ['Volume', 'Revenue'], anomaly: ['Anomaly', 'Outlook'] };
+function groupOf(tab) { return Object.keys(TAB_GROUPS).find(g => TAB_GROUPS[g].includes(tab)); }
+function activateTab(tab) {
+  const group = groupOf(tab);
+  document.querySelectorAll('.top-tab').forEach(t => t.classList.toggle('active', t.dataset.group === group));
+  document.querySelectorAll('.subtabs').forEach(s => { s.hidden = (s.dataset.group !== group); });
+  document.querySelectorAll('.subtab').forEach(s => s.classList.toggle('active', s.dataset.tab === tab));
+  document.querySelectorAll('.tab-panel').forEach(x => x.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  const catBar = document.querySelector('.category-bar');
+  if (catBar) catBar.style.display = (group === 'align') ? '' : 'none';
+  hideAnomBackBtn();
+}
+document.querySelectorAll('.top-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    const group = t.dataset.group;
+    const sub = document.querySelector('.subtabs[data-group="' + group + '"] .subtab.active')
+      || document.querySelector('.subtabs[data-group="' + group + '"] .subtab');
+    activateTab(sub.dataset.tab);
+  });
+});
+document.querySelectorAll('.subtab').forEach(s => {
+  s.addEventListener('click', () => activateTab(s.dataset.tab));
+});
+
+// --- OUTLOOK INSPECTION TABS (Volume & Revenue) ---
+// Simple nested table inspecting the PL-Sales Aligned (Outlook) scenario only.
+// Hierarchy: Product Line -> Product Family -> Reporting Tech Node -> Customer.
+// Year columns 2025-2028 with YoY% for 2026->2027 and 2027->2028.
+const OL_PATH   = [COL.bu, COL.pf, COL.tn, COL.cust];
+const OL_KEYS   = ['bu', 'pf', 'tn', 'cust'];
+const OL_LABELS = ['Product Line', 'Product Family', 'Reporting Tech Node', 'Customer'];
+const OL_YEAR_IDX = [0, 1, 2, 3]; // 2025, 2026, 2027, 2028
+const outlookState = {
+  Outlook: { expanded: new Set() }
+};
+let outlookRepaint = null;
+let anomalyRepaint = null;
+// Remembers where we were in the Demand Anomaly tab when jumping to Outlook
+// Detail, so the floating Back button can return to the exact same spot.
+let anomReturn = null;
+
+// Find the positional row-id path to a customer leaf in the Outlook tree so the
+// Demand Anomaly tab can jump straight to it. Synthetic customer buckets add a
+// level to the id path but do NOT consume a name in the target hierarchy.
+function findOutlookPath(nodes, parentId, targetNames, depth) {
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    const id = parentId + '/' + i;
+    if (node._bucket) {
+      const res = findOutlookPath(node.c || [], id, targetNames, depth);
+      if (res) { res.expand.unshift(id); return res; }
+      continue;
+    }
+    if (node.n === targetNames[depth]) {
+      if (depth === targetNames.length - 1) return { leafId: id, expand: [] };
+      const res = findOutlookPath(node.c || [], id, targetNames, depth + 1);
+      if (res) { res.expand.unshift(id); return res; }
+    }
+  }
+  return null;
+}
+
+// Switch to the Outlook Detail tab, expand the path to the given anomaly's
+// customer, then scroll it into view and flash it.
+function gotoOutlookCustomer(o) {
+  const targetNames = [o.pl, o.pf, o.tn, o.cust];
+  const found = findOutlookPath(buildOutlookTree(filteredRows()), '', targetNames, 0);
+  // Remember the current spot in the Anomaly tab before leaving.
+  const anomScroller = document.querySelector('#panel-Anomaly .ol-scroll');
+  anomReturn = { winY: window.scrollY, scrollTop: anomScroller ? anomScroller.scrollTop : 0 };
+  activateTab('Outlook');
+  if (!found) { anomReturn = null; hideAnomBackBtn(); return; }
+  // Collapse any previously-opened path so each jump lands on a clean, focused
+  // tree showing only the target customer.
+  outlookState.Outlook.expanded.clear();
+  found.expand.forEach(id => outlookState.Outlook.expanded.add(id));
+  if (outlookRepaint) outlookRepaint();
+  showAnomBackBtn();
+  requestAnimationFrame(() => {
+    const row = document.querySelector('#oltbl-Outlook tr[data-id="' + found.leafId + '"]');
+    if (!row) return;
+    document.querySelectorAll('#oltbl-Outlook tr.ol-pinned').forEach(r => r.classList.remove('ol-pinned'));
+    const scroller = row.closest('.ol-scroll');
+    if (scroller) {
+      // Scroll within the table so the row lands just below the sticky header
+      // (the header is sticky, so it stays visible at the top of the scroller).
+      const thead = scroller.querySelector('thead');
+      const headH = thead ? thead.offsetHeight : 0;
+      const rRect = row.getBoundingClientRect();
+      const sRect = scroller.getBoundingClientRect();
+      scroller.scrollTop += (rRect.top - sRect.top) - headH - 10;
+      // Return the page to the top so the sticky dashboard header and the
+      // table's column headers stay visible; the inner scroller (above) brings
+      // the target row into view within its own 72vh window.
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      row.scrollIntoView({ block: 'center' });
+    }
+    // Keep the row highlighted until the user clicks Back.
+    row.classList.add('ol-pinned');
+  });
+}
+
+// Floating "Back to Demand Anomaly" control shown after a jump to Outlook Detail.
+function showAnomBackBtn() {
+  let btn = document.getElementById('anom-back-btn');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'anom-back-btn';
+    btn.className = 'anom-back-btn';
+    btn.innerHTML = '&#8592; Back to Demand Anomaly';
+    btn.addEventListener('click', returnToAnomaly);
+    document.body.appendChild(btn);
+  }
+  btn.classList.add('show');
+}
+function hideAnomBackBtn() {
+  const btn = document.getElementById('anom-back-btn');
+  if (btn) btn.classList.remove('show');
+}
+function returnToAnomaly() {
+  document.querySelectorAll('#oltbl-Outlook tr.ol-pinned').forEach(r => r.classList.remove('ol-pinned'));
+  activateTab('Anomaly');
+  hideAnomBackBtn();
+  requestAnimationFrame(() => {
+    const anomScroller = document.querySelector('#panel-Anomaly .ol-scroll');
+    if (anomReturn) {
+      if (anomScroller) anomScroller.scrollTop = anomReturn.scrollTop;
+      window.scrollTo({ top: anomReturn.winY });
+    }
+  });
+}
+
+// Build the full bu->pf->tn->cust tree, aggregating BOTH Outlook Volume (.v) and
+// Revenue (.r) for years 2025-2028. Each level sorted by its 2025 volume
+// (descending). Children lazy.
+function buildOutlookTree(rows) {
+  function rec(rows, depth) {
+    if (depth >= OL_PATH.length || rows.length === 0) return [];
+    const col = OL_PATH[depth];
+    const groups = new Map();
+    for (const r of rows) {
+      const k = r[col]; if (k < 0) continue;
+      let arr = groups.get(k);
+      if (!arr) { arr = []; groups.set(k, arr); }
+      arr.push(r);
+    }
+    const lk = LK[OL_KEYS[depth]];
+    const nodes = [];
+    for (const [k, grp] of groups.entries()) {
+      const v = [0, 0, 0, 0];
+      const r2 = [0, 0, 0, 0];
+      for (const r of grp) for (let j = 0; j < 4; j++) {
+        v[j]  += r[OFFS.VO + OL_YEAR_IDX[j]];
+        r2[j] += r[OFFS.RO + OL_YEAR_IDX[j]];
+      }
+      if (v.every(x => Math.abs(x) < 0.01) && r2.every(x => Math.abs(x) < 0.01)) continue;
+      nodes.push({
+        n: lk[k],
+        v:  v.map(x => Math.round(x * 100) / 100),
+        r:  r2.map(x => Math.round(x * 100) / 100),
+        _rows: grp
+      });
+    }
+    nodes.sort((a, b) => b.v[0] - a.v[0]); // sort by 2025 volume, highest first
+    // Customer level: show top 3 individually, then collapsible buckets.
+    if (depth === OL_PATH.length - 1) {
+      for (const node of nodes) delete node._rows;
+      return bucketCustomers(nodes);
+    }
+    for (const node of nodes) {
+      Object.defineProperty(node, 'c', {
+        configurable: true,
+        get() {
+          const c = rec(node._rows, depth + 1);
+          delete this._rows;
+          Object.defineProperty(this, 'c', { value: c, enumerable: true });
+          return c;
+        }
+      });
+    }
+    return nodes;
+  }
+  return rec(rows, 0);
+}
+
+// Group sorted customer nodes into: top 3 individual rows, then "Next 3 (4-6)",
+// "Next 3 (7-9)", and "Others" buckets. Each bucket aggregates its members'
+// values and is collapsible to reveal the customers underneath.
+function bucketCustomers(custNodes) {
+  if (custNodes.length <= 3) return custNodes;
+  const out = custNodes.slice(0, 3);
+  const mkBucket = (members, startRank) => {
+    const v = [0, 0, 0, 0];
+    const r = [0, 0, 0, 0];
+    members.forEach(m => { for (let j = 0; j < 4; j++) { v[j] += m.v[j]; r[j] += m.r[j]; } });
+    const label = startRank >= 10
+      ? `Others (${members.length})`
+      : `Next ${members.length} (${startRank}-${startRank + members.length - 1})`;
+    const node = {
+      n: label,
+      v: v.map(x => Math.round(x * 100) / 100),
+      r: r.map(x => Math.round(x * 100) / 100),
+      _bucket: true
+    };
+    Object.defineProperty(node, 'c', { value: members, enumerable: true });
+    return node;
+  };
+  const seg1 = custNodes.slice(3, 6);
+  const seg2 = custNodes.slice(6, 9);
+  const rest = custNodes.slice(9);
+  if (seg1.length) out.push(mkBucket(seg1, 4));
+  if (seg2.length) out.push(mkBucket(seg2, 7));
+  if (rest.length) out.push(mkBucket(rest, 10));
+  return out;
+}
+
+// Values under 1,000 show one decimal (161.0); larger values use comma-grouped
+// integers (1,719) — matching the reference table formatting.
+function fmtNum(n) {
+  if (n == null || isNaN(n)) return '-';
+  return Math.abs(n) >= 1000
+    ? n.toLocaleString('en-US', { maximumFractionDigits: 0 })
+    : n.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+}
+
+// Volume: whole numbers, comma-grouped, no decimals.
+function fmtVol(n) {
+  if (n == null || isNaN(n)) return '-';
+  return Math.round(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+// ASP (Revenue / Volume): one decimal; blank when volume is zero.
+function fmtAsp(n) {
+  if (n == null || isNaN(n) || !isFinite(n)) return '-';
+  return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function yoyCell(curr, prev) {
+  if (curr == null || prev == null || Math.abs(prev) < 0.01) return '<td class="yoy">-</td>';
+  const pct = (curr - prev) / prev * 100;
+  const cls = pct > 0.05 ? 'pos' : (pct < -0.05 ? 'neg' : '');
+  const sign = pct > 0 ? '+' : '';
+  return `<td class="yoy ${cls}">${sign}${pct.toFixed(1)}%</td>`;
+}
+
+function renderOutlookRows(nodes, level, parentId, key) {
+  const exp = outlookState[key].expanded;
+  let html = '';
+  nodes.forEach((node, i) => {
+    const id = parentId + '/' + i;
+    const hasChildren = node.c && node.c.length > 0;
+    const isOpen = exp.has(id);
+    const toggle = hasChildren
+      ? `<span class="tree-toggle">${isOpen ? '&#9662;' : '&#9656;'}</span>`
+      : '<span class="tree-toggle placeholder">&#9656;</span>';
+    const cls = (hasChildren ? 'has-children' : '') + (node._bucket ? ' ol-bucket' : '');
+    const v = node.v, r = node.r;
+    const a = [0, 1, 2, 3].map(j => (v[j] && Math.abs(v[j]) > 0.0001) ? r[j] / v[j] * 1000 : null);
+    html += `<tr class="tree-row level-${level} ${cls}" data-id="${id}">`;
+    html += `<td class="name-cell">${toggle}${escapeHtml(node.n)}</td>`;
+    html += `<td>${fmtVol(v[0])}</td>`;
+    html += `<td>${fmtVol(v[1])}</td>`;
+    html += `<td>${fmtVol(v[2])}</td>`;
+    html += `<td>${fmtVol(v[3])}</td>`;
+    html += yoyCell(v[2], v[1]);
+    html += yoyCell(v[3], v[2]);
+    html += `<td class="grp-sep">${fmtNum(r[0])}</td>`;
+    html += `<td>${fmtNum(r[1])}</td>`;
+    html += `<td>${fmtNum(r[2])}</td>`;
+    html += `<td>${fmtNum(r[3])}</td>`;
+    html += yoyCell(r[2], r[1]);
+    html += yoyCell(r[3], r[2]);
+    html += `<td class="grp-sep">${fmtAsp(a[0])}</td>`;
+    html += `<td>${fmtAsp(a[1])}</td>`;
+    html += `<td>${fmtAsp(a[2])}</td>`;
+    html += `<td>${fmtAsp(a[3])}</td>`;
+    html += yoyCell(a[2], a[1]);
+    html += yoyCell(a[3], a[2]);
+    html += '</tr>';
+    if (hasChildren && isOpen) html += renderOutlookRows(node.c, level + 1, id, key);
+  });
+  return html;
+}
+
+function renderOutlook() {
+  const key = 'Outlook';
+  const root = document.getElementById('panel-' + key);
+  let tree = buildOutlookTree(filteredRows());
+  const yshort = OL_YEAR_IDX.map(i => "'" + String(YEARS[i]).slice(2) + (YEARS[i] === 2025 ? ' A' : ''));
+  const Y1 = '\'26&#8594;\'27', Y2 = '\'27&#8594;\'28';
+
+  root.innerHTML = `
+    <div class="card">
+      <div class="table-controls">
+        <h3 style="margin-right:auto">PL-Sales Aligned View (Outlook)  |  Volume, Revenue &amp; ASP</h3>
+        <button class="tbl-btn" data-action="expand-all">Expand all</button>
+        <button class="tbl-btn" data-action="collapse-all">Collapse all</button>
+      </div>
+      <div class="sub">Hierarchy: ${OL_LABELS.join(' -> ')}  |  Sorted by 2025 volume  |  Click a row to expand / collapse  |  Volume in kwfr, Revenue in $m, ASP = Revenue &#247; Volume ($/wafer)  |  '25 A = Actual, '26&#8211;'27 = Apr RPM</div>
+      <div class="ol-scroll"><table class="tree-table ol-table" id="oltbl-${key}"></table></div>
+    </div>`;
+
+  function paint() {
+    // Rebuild from the current filter selection so the Outlook tab honors the
+    // top filters just like the other tabs.
+    tree = buildOutlookTree(filteredRows());
+    let html = '<thead>';
+    // Group header row: Volume | Revenue | ASP blocks.
+    html += '<tr class="grp-head-row">';
+    html += '<th class="name-head" rowspan="2">' + OL_LABELS[0] + ' / ...</th>';
+    html += '<th class="grp-vol" colspan="6">Volume (kwfr)</th>';
+    html += '<th class="grp-rev grp-sep" colspan="6">Revenue ($m)</th>';
+    html += '<th class="grp-asp grp-sep" colspan="6">ASP ($/wafer)</th>';
+    html += '</tr>';
+    // Column header row: years + YoY for each metric block.
+    html += '<tr class="col-head-row">';
+    const yhdr = (sep) => {
+      let h = `<th${sep ? ' class="grp-sep"' : ''}>${yshort[0]}</th><th>${yshort[1]}</th><th>${yshort[2]}</th><th>${yshort[3]}</th>`;
+      h += `<th class="yoy-col">${Y1}</th><th class="yoy-col">${Y2}</th>`;
+      return h;
+    };
+    html += yhdr(false) + yhdr(true) + yhdr(true);
+    html += '</tr></thead><tbody>';
+    html += renderOutlookRows(tree, 0, '', key);
+    // Grand total row across all product lines (top-level tree nodes).
+    const gv = [0, 0, 0, 0], gr = [0, 0, 0, 0];
+    tree.forEach(n => { for (let j = 0; j < 4; j++) { gv[j] += n.v[j]; gr[j] += n.r[j]; } });
+    const ga = [0, 1, 2, 3].map(j => (gv[j] && Math.abs(gv[j]) > 0.0001) ? gr[j] / gv[j] * 1000 : null);
+    html += '<tr class="tree-row ol-grand"><td class="name-cell">Grand total</td>';
+    html += `<td>${fmtVol(gv[0])}</td><td>${fmtVol(gv[1])}</td><td>${fmtVol(gv[2])}</td><td>${fmtVol(gv[3])}</td>`;
+    html += yoyCell(gv[2], gv[1]) + yoyCell(gv[3], gv[2]);
+    html += `<td class="grp-sep">${fmtNum(gr[0])}</td><td>${fmtNum(gr[1])}</td><td>${fmtNum(gr[2])}</td><td>${fmtNum(gr[3])}</td>`;
+    html += yoyCell(gr[2], gr[1]) + yoyCell(gr[3], gr[2]);
+    html += `<td class="grp-sep">${fmtAsp(ga[0])}</td><td>${fmtAsp(ga[1])}</td><td>${fmtAsp(ga[2])}</td><td>${fmtAsp(ga[3])}</td>`;
+    html += yoyCell(ga[2], ga[1]) + yoyCell(ga[3], ga[2]) + '</tr>';
+    html += '</tbody>';
+    const tbl = document.getElementById('oltbl-' + key);
+    tbl.innerHTML = html;
+    tbl.querySelectorAll('.tree-row.has-children .name-cell').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const id = cell.parentElement.dataset.id;
+        const exp = outlookState[key].expanded;
+        if (exp.has(id)) exp.delete(id); else exp.add(id);
+        paint();
+      });
+    });
+  }
+
+  root.querySelectorAll('.tbl-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      const exp = outlookState[key].expanded;
+      if (b.dataset.action === 'expand-all') {
+        const collect = (nodes, prefix) => nodes.forEach((n, i) => {
+          const id = prefix + '/' + i;
+          if (n.c && n.c.length) { exp.add(id); collect(n.c, id); }
+        });
+        collect(tree, '');
+      } else {
+        outlookState[key].expanded = new Set();
+      }
+      paint();
+    });
+  });
+
+  outlookRepaint = paint;
+  paint();
+}
+
+// --- DEMAND ANOMALY DETECTION & REVIEW ---
+// Scans the PL-Sales Aligned (Outlook) scenario at Product Line and Product
+// Family level for (a) rapid YoY moves in Volume, Revenue & ASP across
+// '25A->'26, '26->'27, '27->'28, and (b) 2027 / 2028 ASP divergence from the
+// 2025 actual ASP. Each item can be flagged for review or accepted; decisions
+// persist in localStorage.
+// v1 keys (single shared decision per anomaly) — kept only as a migration
+// source. v2 stores decisions and notes per reviewer: { [anomKey]: { [person]:
+// value } } so multiple people's flags and comments coexist and merge cleanly.
+const ANOM_LS_KEY = 'gf_demand_anomaly_status_v1';
+const ANOM_NOTES_KEY_V1 = 'gf_demand_anomaly_notes_v1';
+const ANOM_DEC_KEY = 'gf_demand_anomaly_decisions_v2';
+const ANOM_NOTES_KEY = 'gf_demand_anomaly_notes_v2';
+const ANOM_USER_KEY = 'gf_demand_anomaly_user_v1';
+const ANOM_MIGRATED = 'gf_demand_anomaly_migrated_v2';
+const anomalyState = { filter: 'all', cfg: { rapid: 5, aspDiv: 5, volFloor: 1 } };
+
+function getReviewer() { try { return localStorage.getItem(ANOM_USER_KEY) || ''; } catch (e) { return ''; } }
+function setReviewer(name) { try { localStorage.setItem(ANOM_USER_KEY, name); } catch (e) {} }
+function ensureReviewer() {
+  let n = getReviewer();
+  if (!n) {
+    n = (window.prompt('Enter your name so your flags and comments are attributed to you:') || '').trim();
+    if (!n) n = 'Anonymous';
+    setReviewer(n);
+    renamePerson('Me', n); // claim anything carried over from earlier single-user use
+  }
+  return n;
+}
+// True when an object's keys are 0,1,2,... — the signature of a string that was
+// accidentally spread by Object.assign({}, "text") in an earlier build.
+function looksCharIndexed(o) {
+  const keys = Object.keys(o);
+  if (!keys.length) return false;
+  for (let i = 0; i < keys.length; i++) { if (o[String(i)] === undefined) return false; }
+  return keys.every(k => /^\d+$/.test(k));
+}
+// Force any map into the per-person shape { [anomKey]: { [person]: value } }.
+// Handles three inputs: already-per-person (kept as-is), a flat key->string map
+// from older single-user exports (wrapped under fallbackName), and a value that
+// was corrupted into a character-indexed object (reassembled into a string).
+function coercePerPerson(map, fallbackName) {
+  const who = (fallbackName && String(fallbackName).trim()) || 'Imported';
+  const out = {};
+  if (!map || typeof map !== 'object') return out;
+  for (const k in map) {
+    const v = map[k];
+    if (typeof v === 'string') { if (v) out[k] = { [who]: v }; }
+    else if (v && typeof v === 'object') {
+      if (looksCharIndexed(v)) {
+        let s = ''; const n = Object.keys(v).length;
+        for (let i = 0; i < n; i++) s += v[String(i)];
+        if (s) out[k] = { [who]: s };
+      } else {
+        const inner = {};
+        for (const p in v) { if (typeof v[p] === 'string' && v[p]) inner[p] = v[p]; }
+        if (Object.keys(inner).length) out[k] = inner;
+      }
+    }
+  }
+  return out;
+}
+function loadAnomDecisions() { try { return coercePerPerson(JSON.parse(localStorage.getItem(ANOM_DEC_KEY)) || {}, getReviewer() || 'Me'); } catch (e) { return {}; } }
+function saveAnomDecisions(map) { try { localStorage.setItem(ANOM_DEC_KEY, JSON.stringify(map)); } catch (e) {} }
+function loadAnomNotes() { try { return coercePerPerson(JSON.parse(localStorage.getItem(ANOM_NOTES_KEY)) || {}, getReviewer() || 'Me'); } catch (e) { return {}; } }
+function saveAnomNotes(map) { try { localStorage.setItem(ANOM_NOTES_KEY, JSON.stringify(map)); } catch (e) {} }
+
+// Roll up one anomaly's per-person decisions into a single status used for the
+// badge, counts and filter: everyone agrees -> that status; mix of flag and
+// accept -> 'conflict'; nobody decided -> 'open'.
+function rollupStatus(perPerson) {
+  const vals = perPerson ? Object.values(perPerson) : [];
+  if (!vals.length) return 'open';
+  const hasF = vals.indexOf('flagged') >= 0, hasA = vals.indexOf('accepted') >= 0;
+  if (hasF && hasA) return 'conflict';
+  return hasF ? 'flagged' : 'accepted';
+}
+
+function renamePerson(oldName, newName) {
+  if (!oldName || oldName === newName) return;
+  [[loadAnomDecisions, saveAnomDecisions], [loadAnomNotes, saveAnomNotes]].forEach(([load, save]) => {
+    const map = load(); let changed = false;
+    for (const k in map) {
+      const e = map[k];
+      if (e && Object.prototype.hasOwnProperty.call(e, oldName)) {
+        if (!(newName in e)) e[newName] = e[oldName];
+        delete e[oldName]; changed = true;
+      }
+    }
+    if (changed) save(map);
+  });
+}
+
+// One-time migration of existing single-user v1 flags/notes into the per-person
+// v2 model, attributed to the current reviewer (or 'Me' until they set a name).
+function migrateAnomV1() {
+  try {
+    if (localStorage.getItem(ANOM_MIGRATED)) return;
+    const who = getReviewer() || 'Me';
+    const oldS = JSON.parse(localStorage.getItem(ANOM_LS_KEY) || 'null');
+    if (oldS && typeof oldS === 'object') {
+      const dec = loadAnomDecisions();
+      for (const k in oldS) { dec[k] = dec[k] || {}; if (!(who in dec[k])) dec[k][who] = oldS[k]; }
+      saveAnomDecisions(dec);
+    }
+    const oldN = JSON.parse(localStorage.getItem(ANOM_NOTES_KEY_V1) || 'null');
+    if (oldN && typeof oldN === 'object') {
+      const nt = loadAnomNotes();
+      for (const k in oldN) { nt[k] = nt[k] || {}; if (!(who in nt[k])) nt[k][who] = oldN[k]; }
+      saveAnomNotes(nt);
+    }
+    localStorage.setItem(ANOM_MIGRATED, '1');
+  } catch (e) {}
+}
+
+function detectAnomalies(cfg) {
+  const tree = buildOutlookTree(filteredRows());
+  const YL = OL_YEAR_IDX.map(i => "'" + String(YEARS[i]).slice(2) + (YEARS[i] === 2025 ? 'A' : ''));
+  const aspOf = (v, r, j) => (v[j] && Math.abs(v[j]) > 0.0001) ? r[j] / v[j] * 1000 : null;
+  const sevOf = (pct, thr) => { const ratio = thr > 0 ? Math.abs(pct) / thr : 0; return ratio >= 2 ? 'high' : (ratio >= 1.4 ? 'med' : 'low'); };
+  const trans = [[1, 2], [2, 3]]; // '26->'27 and '27->'28 only; '25A->'26 excluded
+  const out = [];
+
+  function scan(path, v, r) {
+    const level = path.length - 1; // 0=PL, 1=PF, 2=Tech Node, 3=Customer
+    const base = { pl: path[0], pf: path[1] || null, tn: path[2] || null, cust: path[3] || null, level: level };
+    const metrics = [
+      { name: 'Volume', arr: v, fmt: fmtVol },
+      { name: 'ASP', arr: [0, 1, 2, 3].map(j => aspOf(v, r, j)), fmt: fmtAsp }
+    ];
+    for (const m of metrics) {
+      for (const [p, c] of trans) {
+        if (!(Math.abs(v[p]) >= cfg.volFloor && Math.abs(v[c]) >= cfg.volFloor)) continue;
+        const prev = m.arr[p], cur = m.arr[c];
+        if (prev == null || cur == null || Math.abs(prev) < 0.01) continue;
+        const pct = (cur - prev) / prev * 100;
+        if (Math.abs(pct) < cfg.rapid) continue;
+        out.push(Object.assign({}, base, { metric: m.name, type: 'rapid', period: YL[p] + '→' + YL[c], fromVal: m.fmt(prev), toVal: m.fmt(cur), pct, sev: sevOf(pct, cfg.rapid) }));
+      }
+    }
+    const a0 = aspOf(v, r, 0);
+    if (a0 != null && Math.abs(v[0]) >= cfg.volFloor) {
+      // ASP divergence from 2025 actuals. Once a customer diverges in the
+      // earlier year (2027 vs 2025), the later year (2028 vs 2025) is the same
+      // issue carried forward, so we flag only the first occurrence.
+      for (const t of [2, 3]) {
+        if (!(Math.abs(v[t]) >= cfg.volFloor)) continue;
+        const at = aspOf(v, r, t);
+        if (at == null) continue;
+        const pct = (at - a0) / a0 * 100;
+        if (Math.abs(pct) < cfg.aspDiv) continue;
+        out.push(Object.assign({}, base, { metric: 'ASP', type: 'asp', period: YL[t] + ' vs ' + YL[0], fromVal: fmtAsp(a0), toVal: fmtAsp(at), pct, sev: sevOf(pct, cfg.aspDiv) }));
+        break;
+      }
+    }
+  }
+
+  // Walk Product Line -> Product Family -> Tech Node -> Customer. Synthetic
+  // customer buckets ("Next 3", "Others") are skipped as scan targets but
+  // recursed into so individual customers are evaluated.
+  function walk(nodes, pathNames) {
+    nodes.forEach(node => {
+      if (node._bucket) { walk(node.c || [], pathNames); return; }
+      const path = pathNames.concat(node.n);
+      if (path.length === OL_PATH.length) scan(path, node.v, node.r); // customer level only
+      if (node.c && node.c.length) walk(node.c, path);
+    });
+  }
+  walk(tree, []);
+
+  out.forEach(o => { o.key = [o.pl, o.pf || '*', o.tn || '*', o.cust || '*', o.metric, o.type, o.period].join('|'); });
+  const sevRank = { high: 0, med: 1, low: 2 };
+  out.sort((a, b) => (sevRank[a.sev] - sevRank[b.sev]) || (Math.abs(b.pct) - Math.abs(a.pct)));
+  return out;
+}
+
+function renderAnomaly() {
+  const root = document.getElementById('panel-Anomaly');
+  const cfg = anomalyState.cfg;
+  root.innerHTML = `
+    <div class="card">
+      <div class="table-controls" style="margin-bottom:6px">
+        <h3 style="margin-right:auto">Demand Anomaly Review</h3>
+        <span id="anom-reviewer" class="anom-reviewer"></span>
+        <span id="anom-io-msg" style="font-size:12px;align-self:center;margin-right:8px"></span>
+        <button id="anom-export" class="abtn" type="button" title="Download everyone's flags &amp; comments as a file you can share">Export flags</button>
+        <button id="anom-import" class="abtn" type="button" title="Load flags &amp; comments from a shared file (merges into your view)">Import flags</button>
+        <input id="anom-import-file" type="file" accept="application/json,.json" style="display:none">
+        <button id="anom-reset" class="abtn abtn-danger" type="button" title="Clear all flags, accepts &amp; comments on this device">Reset all</button>
+      </div>
+      <div class="sub">Flags rapid YoY moves in Volume &amp; ASP across '26&#8594;'27 and '27&#8594;'28 (the '25A&#8594;'26 step is excluded), plus 2027 / 2028 ASP divergence from 2025 actuals, at the Customer level (Product Line &#8250; Product Family &#8250; Tech Node &#8250; Customer). Honors the filters at the top of the page. Adjust the thresholds, then flag or accept each item &#8212; click any row to jump to that customer in Outlook Detail. Your decisions are saved on this device.</div>
+      <div class="anom-controls">
+        <div class="anom-thresh fixed"><label>Rapid YoY &#8805; %</label><span class="anom-fixed">${cfg.rapid}%</span></div>
+        <div class="anom-thresh fixed"><label>Min volume</label><span class="anom-fixed">${cfg.volFloor} kwfr</span></div>
+        <div class="anom-thresh fixed"><label>ASP divergence &#8805; %</label><span class="anom-fixed">${cfg.aspDiv}%</span></div>
+        <div class="anom-filters" id="anom-filters"></div>
+      </div>
+      <div class="anom-summary" id="anom-summary"></div>
+      <div class="ol-scroll"><table class="anom-table" id="anom-tbl"></table></div>
+    </div>`;
+
+  // All detection thresholds (Rapid YoY 5%, Min volume 1 kwfr, ASP divergence
+  // 5%) are fixed and not editable.
+
+  // Export / Import of review decisions (flags + comments) so they can be
+  // shared between people. Each person's flags live in their own browser, so
+  // these buttons let a reviewer hand a working set to colleagues, who import
+  // it (merged into whatever they already have).
+  const ioMsg = root.querySelector('#anom-io-msg');
+  function flashMsg(t, ok) {
+    ioMsg.textContent = t;
+    ioMsg.style.color = ok === false ? '#b4232a' : '#0a7d3f';
+    clearTimeout(ioMsg._t);
+    ioMsg._t = setTimeout(() => { ioMsg.textContent = ''; }, 5000);
+  }
+  function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
+
+  root.querySelector('#anom-export').addEventListener('click', () => {
+    const decisions = loadAnomDecisions(), notes = loadAnomNotes();
+    const payload = { app: 'gf-demand-anomaly', version: 2, exported: new Date().toISOString(), reviewer: getReviewer(), decisions, notes };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'demand-anomaly-flags_' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    flashMsg('Exported ' + plural(Object.keys(decisions).length, 'flag') + ' and ' + plural(Object.keys(notes).length, 'comment') + '.');
+  });
+
+  const importFile = root.querySelector('#anom-import-file');
+  root.querySelector('#anom-import').addEventListener('click', () => importFile.click());
+  importFile.addEventListener('change', () => {
+    const file = importFile.files && importFile.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      let data;
+      try { data = JSON.parse(reader.result); }
+      catch (e) { flashMsg('Could not read that file — it is not valid flag data.', false); importFile.value = ''; return; }
+      if (!data || typeof data !== 'object' || (data.app && data.app !== 'gf-demand-anomaly')) {
+        flashMsg('That file is not a Demand Anomaly flag export.', false); importFile.value = ''; return;
+      }
+      // Normalize incoming data into the per-person shape regardless of the
+      // export version. coercePerPerson handles v2 (already nested), v1 (flat
+      // key->value, attributed to the exporter), and any value a previous build
+      // corrupted. The exporter's name is the fallback owner for un-attributed
+      // entries. Decisions can arrive under `decisions` (v2) or `status` (v1).
+      const exporter = (typeof data.reviewer === 'string' && data.reviewer.trim()) ? data.reviewer.trim() : 'Imported';
+      const inDec = coercePerPerson(data.decisions || data.status, exporter);
+      const inNotes = coercePerPerson(data.notes, exporter);
+      const dec = loadAnomDecisions();
+      for (const k in inDec) { dec[k] = Object.assign(dec[k] || {}, inDec[k]); }
+      saveAnomDecisions(dec);
+      const nt = loadAnomNotes();
+      for (const k in inNotes) { nt[k] = Object.assign(nt[k] || {}, inNotes[k]); }
+      saveAnomNotes(nt);
+      importFile.value = '';
+      if (anomalyRepaint) anomalyRepaint();
+      flashMsg('Imported ' + plural(Object.keys(inDec).length, 'flag') + ' and ' + plural(Object.keys(inNotes).length, 'comment') + ', merged into your view.');
+    };
+    reader.readAsText(file);
+  });
+
+  // Reset clears every flag/accept decision stored on this device (after a
+  // confirm). Comments are intentionally left untouched.
+  root.querySelector('#anom-reset').addEventListener('click', () => {
+    const nFlags = Object.keys(loadAnomDecisions()).length;
+    const nNotes = Object.keys(loadAnomNotes()).length;
+    if (!nFlags && !nNotes) { flashMsg('There is nothing to reset.', false); return; }
+    const parts = [];
+    if (nFlags) parts.push(plural(nFlags, 'flag'));
+    if (nNotes) parts.push(plural(nNotes, 'comment'));
+    const what = parts.join(' and ');
+    if (!window.confirm('Clear all ' + what + ' on this device? This cannot be undone.')) return;
+    saveAnomDecisions({});
+    saveAnomNotes({});
+    if (anomalyRepaint) anomalyRepaint();
+    flashMsg('Cleared ' + what + '.');
+  });
+
+  function statCard(cls, num, lbl) {
+    return '<div class="anom-stat ' + cls + '"><div class="s-num">' + num + '</div><div class="s-lbl">' + lbl + '</div></div>';
+  }
+
+  function paint() {
+    const decisions = loadAnomDecisions();
+    const all = detectAnomalies(cfg);
+    all.forEach(o => { o.decisions = decisions[o.key] || {}; o.status = rollupStatus(o.decisions); });
+    const counts = { all: all.length, open: 0, flagged: 0, accepted: 0, conflict: 0 };
+    all.forEach(o => { counts[o.status]++; });
+
+    root.querySelector('#anom-summary').innerHTML =
+      statCard('', counts.all, 'Total anomalies') +
+      statCard('s-open', counts.open, 'Open / unreviewed') +
+      statCard('s-flag', counts.flagged, 'Flagged for review') +
+      statCard('s-acc', counts.accepted, 'Accepted') +
+      statCard('s-conflict', counts.conflict, 'Conflicts');
+
+    const fwrap = root.querySelector('#anom-filters');
+    const pills = [['all', 'All'], ['open', 'Open'], ['flagged', 'Flagged'], ['accepted', 'Accepted'], ['conflict', 'Conflict']];
+    fwrap.innerHTML = pills.map(p =>
+      '<button class="anom-pill' + (anomalyState.filter === p[0] ? ' active' : '') + '" data-filter="' + p[0] + '">' + p[1] + '<span class="pill-count">' + counts[p[0]] + '</span></button>'
+    ).join('');
+    fwrap.querySelectorAll('.anom-pill').forEach(b => b.addEventListener('click', () => { anomalyState.filter = b.dataset.filter; paint(); }));
+
+    const shown = anomalyState.filter === 'all' ? all : all.filter(o => o.status === anomalyState.filter);
+
+    // Group anomalies by the full path (Product Line › Product Family › Tech
+    // Node › Customer) so every issue for the same customer/tech node appears
+    // together under one header. Groups keep insertion order, which preserves
+    // the severity sort from detectAnomalies (worst-first overall).
+    const groupMap = new Map();
+    shown.forEach(o => {
+      const gk = [o.pl, o.pf || '*', o.tn || '*', o.cust || '*'].join('|');
+      if (!groupMap.has(gk)) groupMap.set(gk, []);
+      groupMap.get(gk).push(o);
+    });
+
+    const notes = loadAnomNotes();
+    const me = getReviewer() || '';
+    let html = '<thead><tr>'
+      + '<th class="a-sevhead" aria-label="Severity"></th><th>Metric</th><th>Issue</th><th>Period</th>'
+      + '<th class="num">From</th><th class="num">To</th><th class="num">Change</th><th>Status</th><th>Action</th><th>Comments</th>'
+      + '</tr></thead><tbody>';
+    const ordered = [];
+    groupMap.forEach(items => {
+      const g = items[0];
+      const names = [g.pl, g.pf, g.tn, g.cust].filter(x => x);
+      const leaf = names[names.length - 1];
+      const crumb = names.slice(0, -1).join(' › ');
+      html += '<tr class="a-group"><td colspan="10">'
+        + '<span class="grp-cust">' + escapeHtml(leaf) + '</span>'
+        + (crumb ? ' <span class="grp-crumb">&#8212; ' + escapeHtml(crumb) + '</span>' : '')
+        + '<span class="grp-count">' + items.length + (items.length === 1 ? ' issue' : ' issues') + '</span>'
+        + '</td></tr>';
+      items.forEach(o => {
+        const idx = ordered.length;
+        ordered.push(o);
+        const chgCls = o.pct > 0 ? 'pos' : 'neg';
+        const sign = o.pct > 0 ? '+' : '';
+        const tag = o.type === 'rapid'
+          ? '<span class="atag t-rapid">Rapid change</span>'
+          : '<span class="atag t-asp">ASP vs \'25A</span>';
+        const kAttr = escapeHtml(o.key);
+        // Per-person attribution: one chip per reviewer who has weighed in,
+        // showing their name and whether they flagged (🚩) or accepted (✓).
+        const who = Object.keys(o.decisions);
+        const whoHtml = who.length
+          ? '<div class="a-who">' + who.map(p =>
+              '<span class="who w-' + o.decisions[p] + '"><span class="who-dot">' + (o.decisions[p] === 'flagged' ? '🚩' : '✓') + '</span>' + escapeHtml(p) + '</span>'
+            ).join('') + '</div>'
+          : '';
+        // The action buttons reflect the CURRENT reviewer's own decision (so
+        // each person toggles their own vote); the badge shows the roll-up.
+        const mine = o.decisions[me];
+        // Comments: other people's notes show read-only with their name; the
+        // current reviewer edits only their own note in the textarea.
+        const noteMap = notes[o.key] || {};
+        const myNote = (me && noteMap[me]) || '';
+        const othersHtml = Object.keys(noteMap).filter(p => p !== me).map(p =>
+          '<div class="a-othernote"><span class="on-who">' + escapeHtml(p) + ':</span> ' + escapeHtml(noteMap[p]) + '</div>'
+        ).join('');
+        const reviewedCls = (anomalyState.filter === 'all' && o.status !== 'open') ? ' a-reviewed' : '';
+        html += '<tr class="a-row sev-' + o.sev + reviewedCls + '" data-idx="' + idx + '" title="Open this customer in Outlook Detail">'
+          + '<td class="a-sevcell a-indent"></td>'
+          + '<td class="a-metric">' + o.metric + '</td>'
+          + '<td>' + tag + '</td>'
+          + '<td>' + o.period + '</td>'
+          + '<td class="num">' + o.fromVal + '</td>'
+          + '<td class="num">' + o.toVal + '</td>'
+          + '<td class="num a-chg ' + chgCls + '">' + sign + o.pct.toFixed(1) + '%</td>'
+          + '<td><span class="abadge b-' + o.status + '">' + o.status + '</span>' + whoHtml + '</td>'
+          + '<td><div class="aact">'
+          +   '<button class="abtn act-flag' + (mine === 'flagged' ? ' on' : '') + '" data-key="' + kAttr + '" data-act="flagged">Flag</button>'
+          +   '<button class="abtn act-accept' + (mine === 'accepted' ? ' on' : '') + '" data-key="' + kAttr + '" data-act="accepted">Accept</button>'
+          + '</div></td>'
+          + '<td class="a-notecell">' + othersHtml + '<textarea class="anom-note' + (myNote ? ' has-note' : '') + '" rows="1" placeholder="Add a comment&hellip;" data-key="' + kAttr + '">' + escapeHtml(myNote) + '</textarea></td>'
+          + '</tr>';
+      });
+    });
+    html += '</tbody>';
+    const tbl = root.querySelector('#anom-tbl');
+    tbl.innerHTML = html;
+
+    const wrap = tbl.parentElement;
+    const existing = wrap.querySelector('.anom-empty');
+    if (existing) existing.remove();
+    if (!shown.length) {
+      const msg = document.createElement('div');
+      msg.className = 'anom-empty';
+      msg.textContent = counts.all === 0 ? 'No anomalies at the current thresholds.' : 'Nothing to review in this view.';
+      wrap.appendChild(msg);
+    }
+
+    tbl.querySelectorAll('.abtn').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      ensureReviewer();
+      const who = getReviewer();
+      const dec = loadAnomDecisions();
+      const key = b.dataset.key, act = b.dataset.act;
+      dec[key] = dec[key] || {};
+      if (dec[key][who] === act) delete dec[key][who]; else dec[key][who] = act;
+      if (!Object.keys(dec[key]).length) delete dec[key];
+      saveAnomDecisions(dec);
+      paint();
+    }));
+
+    // Comment boxes: persist on input (no repaint, so focus is kept) and stop
+    // clicks from bubbling up to the row's drill-through handler. Each person's
+    // note is stored under their own name, so comments don't overwrite.
+    tbl.querySelectorAll('.anom-note').forEach(ta => {
+      ta.addEventListener('click', e => e.stopPropagation());
+      ta.addEventListener('input', () => {
+        ensureReviewer();
+        const who = getReviewer();
+        const nt = loadAnomNotes();
+        const key = ta.dataset.key;
+        const val = ta.value.trim();
+        nt[key] = nt[key] || {};
+        if (val) nt[key][who] = val; else delete nt[key][who];
+        if (!Object.keys(nt[key]).length) delete nt[key];
+        saveAnomNotes(nt);
+        ta.classList.toggle('has-note', !!val);
+      });
+    });
+
+    tbl.querySelectorAll('tr.a-row').forEach(tr => tr.addEventListener('click', e => {
+      if (e.target.closest('.abtn') || e.target.closest('.anom-note')) return;
+      gotoOutlookCustomer(ordered[parseInt(tr.dataset.idx, 10)]);
+    }));
+  }
+
+  // Reviewer identity chip in the header: shows who flags/comments will be
+  // attributed to, and lets the person set or change their name (renaming
+  // re-labels everything they've already recorded).
+  function renderReviewerChip() {
+    const el = root.querySelector('#anom-reviewer');
+    if (!el) return;
+    const who = getReviewer();
+    el.classList.toggle('unset', !who);
+    el.innerHTML = who
+      ? '<span class="rv-ico">&#128100;</span>Reviewing as <b>' + escapeHtml(who) + '</b><button type="button" data-act="change">Change</button>'
+      : '<span class="rv-ico">&#9888;&#65039;</span><button type="button" data-act="set">Set your name to start reviewing</button>';
+    const btn = el.querySelector('button');
+    if (btn) btn.addEventListener('click', () => {
+      const cur = getReviewer();
+      const next = (window.prompt('Enter your name so your flags and comments are attributed to you:', cur || '') || '').trim();
+      if (!next) return;
+      if (!cur) { setReviewer(next); renamePerson('Me', next); }
+      else if (next !== cur) { setReviewer(next); renamePerson(cur, next); }
+      renderReviewerChip();
+      paint();
+    });
+  }
+
+  migrateAnomV1();
+  // Optional pre-fill: open with ?reviewer=Your%20Name (or ?me=...) to auto-attribute.
+  try {
+    const p = new URLSearchParams(location.search);
+    const urlName = (p.get('reviewer') || p.get('me') || '').trim();
+    if (urlName) {
+      const cur = getReviewer();
+      if (!cur) { setReviewer(urlName); renamePerson('Me', urlName); }
+      else if (urlName !== cur) { setReviewer(urlName); renamePerson(cur, urlName); }
+    }
+  } catch (e) {}
+  renderReviewerChip();
+  anomalyRepaint = paint;
+  paint();
+}
+
+populateFilters();
+rebuildAll();
+renderOutlook();
+renderAnomaly();
+</script>
+</body>
+</html>
